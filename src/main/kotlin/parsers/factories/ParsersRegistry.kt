@@ -6,4 +6,12 @@ internal object ParsersRegistry {
     val csvParsers: List<CSVParserConstructor> = listOf(
         JoozdlogV5Parser
     )
+
+    val pdfParsers: List<PDFParserConstructor> = listOf(
+
+    )
+
+    val textParsers: List<TextParserConstructor> = listOf(
+
+    )
 }
