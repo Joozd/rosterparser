@@ -11,7 +11,8 @@ import java.time.LocalDateTime
  * @property landingAirport Airport of arrival. Can be any format, e.g. AMS, EHAM, or Amsterdam Schiphol Airport, depending on the provided roster.
  * @property date Date of departure. Can be in any timezone, depending on the provided roster. Timezone should be provided in [ParsedRoster].
  * @property departureTime Moment of departure. Can be in any timezone, depending on the provided roster. Timezone should be provided in [ParsedRoster].
- *
+ * @property namePIC name of PIC. Optional, defaults to null.
+ * @property namesNotPIC names of crew members that are not PIC. Optional, defaults to null.
  */
 data class ParsedFlight(
     val flightNumber: String = "",
@@ -20,4 +21,6 @@ data class ParsedFlight(
     val date: LocalDate,
     val departureTime: LocalDateTime,
     val arrivalTime: LocalDateTime,
+    val namePIC: String? = null,
+    val namesNotPIC: List<String>? = null
 ): ParsedDuty
