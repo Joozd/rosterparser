@@ -10,11 +10,13 @@ import java.time.ZoneOffset
  * @property parsedDuties A list of all the duties in this roster
  * @property timezoneOfRoster The timezone of all the times in this roster
  * @property coveredTime The time span covered by this roster (e.g. 2024-03-24 00:00 until 2024-03-31 00:00)
+ * @property flightsArePlanned if true, flights are planned (a roster). If false, flights are completed (an overview).
  */
 data class ParsedRoster(
     val parsedDuties: List<ParsedDuty>,
     val timezoneOfRoster: ZoneId,
-    val coveredTime: ClosedRange<LocalDateTime>
+    val coveredTime: ClosedRange<LocalDateTime>,
+    val flightsArePlanned: Boolean = true
 ) {
     /**
      * Only the ParsedFlight items in [parsedDuties]
@@ -29,8 +31,7 @@ data class ParsedRoster(
     /**
      * An internal builder class for constructing instances of [ParsedRoster].
      * This class allows for the step-by-step construction of a [ParsedRoster] object,
-     * enabling the specification of time zone, roster start and end times, and the duties
-     * to be included within the roster.
+     * enabling the specification of time zone, roster start and end times, etc. and the adding of duties to the roster.
      *
      * The builder starts with a default configuration of UTC time zone, a start time at
      * [LocalDateTime.MIN], an end time at [LocalDateTime.MAX], and no duties. These
@@ -41,12 +42,15 @@ data class ParsedRoster(
      * @property timeZone The time zone of the roster, defaulting to [ZoneOffset.UTC].
      * @property rosterStart The start time of the roster period, defaulting to [LocalDateTime.MIN].
      * @property rosterEnd The end time of the roster period, defaulting to [LocalDateTime.MAX].
+     * @property flightsArePlanned if true, flights are planned (a roster). If false, flights are completed (an overview).
      */
     internal class Builder {
         private val foundDuties = ArrayList<ParsedDuty>()
         var timeZone: ZoneId = ZoneOffset.UTC
         var rosterStart: LocalDateTime = LocalDateTime.MIN
         var rosterEnd: LocalDateTime = LocalDateTime.MAX
+        var flightsArePlanned = true
+
 
         /**
          * Adds a [ParsedDuty] to the list of duties for the roster.
@@ -67,7 +71,15 @@ data class ParsedRoster(
         fun build() = ParsedRoster(
             parsedDuties = foundDuties,
             timezoneOfRoster = timeZone,
-            coveredTime = rosterStart..rosterEnd
+            coveredTime = rosterStart..rosterEnd,
+            flightsArePlanned = flightsArePlanned
         )
+    }
+
+    companion object {
+        internal fun build(init: Builder.() -> Unit): ParsedRoster {
+            // Create an instance of Builder, apply the lambda, and then build the ParsedRoster
+            return Builder().apply(init).build()
+        }
     }
 }
