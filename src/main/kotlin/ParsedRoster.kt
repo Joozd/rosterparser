@@ -33,9 +33,9 @@ data class ParsedRoster(
      * This class allows for the step-by-step construction of a [ParsedRoster] object,
      * enabling the specification of time zone, roster start and end times, etc. and the adding of duties to the roster.
      *
-     * The builder starts with a default configuration of UTC time zone, a start time at
-     * [LocalDateTime.MIN], an end time at [LocalDateTime.MAX], and no duties. These
-     * defaults can be overridden by calling the appropriate methods on the builder.
+     * The builder starts with a default configuration of UTC time zone, a covered time
+     * of [LocalDateTime.MIN]..[LocalDateTime.MAX] and no duties. These defaults can be overridden by calling the
+     * appropriate methods on the builder.
      *
      * Duties can be added one by one, by calling [addDuty]
      *

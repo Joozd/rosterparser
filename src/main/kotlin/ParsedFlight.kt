@@ -7,14 +7,15 @@ import kotlin.time.Duration
 /**
  * Represents a flight found within a roster. For organization and context, instances of this class should be contained within a [ParsedRoster].
  *
+ * @property date The departure date. The timezone can vary and is specified in the accompanying [ParsedRoster].
  * @property flightNumber The flight number. It can be an empty string ("") for flights without a number.
  * @property takeoffAirport The departure airport. Format varies (e.g., AMS, EHAM, Amsterdam Schiphol Airport) based on the roster provided.
  * @property landingAirport The arrival airport. Format can vary similar to takeoffAirport, based on the roster provided.
- * @property date The departure date. The timezone can vary and is specified in the accompanying [ParsedRoster].
  * @property departureTime The scheduled departure time. Timezone specifics are as per the roster and noted in [ParsedRoster].
  * @property arrivalTime The scheduled arrival time. Timezone treatment is similar to departureTime and date.
  *
  * @property overriddenTotalTime The total duration of the flight if it differs from the calculated duration between [departureTime] and [arrivalTime]. Optional, defaults to null.
+ * @property multiPilotTime The duration of the flight that occurred during Multi Pilot operations. Optional, defaults to null.
  * @property nightTime The duration of the flight that occurred during nighttime. Optional, defaults to null.
  * @property ifrTime The duration of the flight operated under Instrument Flight Rules (IFR). Optional, defaults to null.
  * @property aircraftType The type of aircraft used for the flight. Optional, defaults to null.
@@ -36,14 +37,15 @@ import kotlin.time.Duration
  */
 
 data class ParsedFlight(
+    override val date: LocalDate,
     val flightNumber: String = "",
     val takeoffAirport: String,
     val landingAirport: String,
-    val date: LocalDate,
     val departureTime: LocalDateTime,
     val arrivalTime: LocalDateTime,
 
     val overriddenTotalTime: Duration? = null,
+    val multiPilotTime: Duration? = null,
     val nightTime: Duration? = null,
     val ifrTime: Duration? = null,
     val aircraftType: String? = null,
