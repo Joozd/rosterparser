@@ -17,5 +17,5 @@ internal object ParserFactory {
             MIME_TYPE_PDF -> PDFParser.ofInputStream(inputStream)
             MIME_TYPE_TEXT -> TextParser.ofInputStream(inputStream)
             else -> throw IllegalArgumentException("MIME type $mimeType not supported for creating a RosterParser object")
-        }
+        } ?: throw IllegalArgumentException("Unable to create parser from InputStream with mimetype $mimeType")
 }

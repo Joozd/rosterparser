@@ -25,6 +25,12 @@ import kotlin.time.Duration
  * @property numberOfLandingsByDay The number of landings performed during daylight. Optional, defaults to null.
  * @property numberOfLandingsByNight The number of landings performed during nighttime. Optional, defaults to null.
  *
+ * @property crewSize The size of the crew piloting this flight. Optional, defaults to null.
+ * @property atControlsForTakeoff Indicates if pilot is at the controls for takeoff on this flight. Optional, defaults to null.
+ * @property atControlsForLanding Indicates if pilot is at the controls for landing on this flight. Optional, defaults to null.
+ * @property augmentedCrewTimeForTakeoffLanding The amount of time used for takeoff and landing when calculating time at controls for a flight with an augmented crew. Optional, defaults to null.
+ * @property augmentedCrewFixedRestTime The amount of time the crew member was not at the controls for this flight due to the crew being augmented. Optional, defaults to null.
+ *
  * @property namePIC The name of the Pilot in Command (PIC). Optional, defaults to null.
  * @property namesNotPIC The names of crew members who are not the PIC. Optional, defaults to null.
  * @property isPICDuty Indicates if the duty was performed as PIC. Optional, defaults to null.
@@ -54,6 +60,12 @@ data class ParsedFlight(
     val numberOfTakeoffsByNight: Int? = null,
     val numberOfLandingsByDay: Int? = null,
     val numberOfLandingsByNight: Int? = null,
+
+    val crewSize: Int? = null,
+    val atControlsForTakeoff: Boolean? = null,
+    val atControlsForLanding: Boolean? = null,
+    val augmentedCrewTimeForTakeoffLanding: Duration? = null,
+    val augmentedCrewFixedRestTime: Duration? = null,
 
     val namePIC: String? = null,
     val namesNotPIC: List<String>? = null,

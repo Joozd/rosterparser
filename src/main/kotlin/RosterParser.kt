@@ -23,11 +23,12 @@ abstract class RosterParser {
          *
          * @param inputStream The InputStream with the data to parse
          * @param mimeType The MimeType of the data in [inputStream]
-         * @return A RosterParser object
+         * @return A RosterParser object.
+         * @throws IllegalArgumentException if unable to create a RosterParser with the provided InputStream/mimetype combination.
          *
          * Contains Blocking IO
          */
-        fun ofInputStream(inputStream: InputStream, mimeType: String): RosterParser =
+        fun ofInputStream(inputStream: InputStream, mimeType: String): RosterParser? =
             ParserFactory.getParserForMimeType(mimeType, inputStream)
     }
 }
