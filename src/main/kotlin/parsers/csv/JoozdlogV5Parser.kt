@@ -7,14 +7,11 @@ import nl.joozd.rosterparser.ParsingException
 import nl.joozd.rosterparser.parsers.CSVParser
 import nl.joozd.rosterparser.parsers.factories.CSVParserConstructor
 import java.time.Duration
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.time.Duration.Companion.minutes
 
 class JoozdlogV5Parser (private val lines: List<String>) : CSVParser() {
-    private var periodStart: LocalDateTime? = null
-    private var periodEnd: LocalDateTime? = null
     /**
      * creates a [ParsedRoster] from the data found in the InputStream used to create this RosterParser.
      *
@@ -23,39 +20,22 @@ class JoozdlogV5Parser (private val lines: List<String>) : CSVParser() {
      * @throws ParsingException when the data used to construct this parser cannot be parsed after all
      */
     override fun getRoster(): ParsedRoster = ParsedRoster.build {
-
         val keys = FINGERPRINT.split(";")
         lines.drop(1).forEach { line ->
             try {
                 val flightMap = keys.zip(line.split(";")).toMap()
                 addDuty(
                     if (flightMap["isSim"] == "true")
-                        flightMapToSim(flightMap).also{
-                            adjustRosterPeriodIfNeeded(it.date)
-                        }
+                        flightMapToSim(flightMap)
                     else
-                        flightMapToFlight(flightMap).also{
-                            adjustRosterPeriodIfNeeded(it.date)
-                        }
+                        flightMapToFlight(flightMap)
                 )
             } catch (e: Exception) {
                 throw ParsingException("Cannot parse line $line", e)
             }
         }
         timeZone = ZoneOffset.UTC
-        periodStart?.let { rosterStart = it }
-        periodEnd?.let { rosterEnd = it }
         flightsArePlanned = false
-    }
-
-    /**
-     * Adjusts the start and end of this roster if its date is outside previously known start and end.
-     */
-    private fun adjustRosterPeriodIfNeeded(date: LocalDate){
-        if(periodStart == null  || date.atStartOfDay() < periodStart)
-            periodStart = date.atStartOfDay()
-        if(periodEnd == null || date.plusDays(1).atStartOfDay() > periodEnd)
-            periodEnd = date.plusDays(1).atStartOfDay()
     }
 
     /**
@@ -141,7 +121,7 @@ class JoozdlogV5Parser (private val lines: List<String>) : CSVParser() {
 
 
     companion object : CSVParserConstructor {
-        override fun createIfAble(csvLines: List<String>): CSVParser? =
+        override fun createIfAble(csvLines: List<String>): JoozdlogV5Parser? =
             if (canCreateFromLines(csvLines)) JoozdlogV5Parser(csvLines)
             else null
 
