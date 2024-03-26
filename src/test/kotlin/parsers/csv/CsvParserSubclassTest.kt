@@ -20,7 +20,7 @@ abstract class CsvParserSubclassTest {
     abstract val parserConstructor: CSVParserConstructor
 
     protected val parser by lazy { createParser() }
-    private fun createParser() = File(this::class.java.classLoader.getResource("joozdlogv5test.csv")!!.toURI())
+    private fun createParser() = File(this::class.java.classLoader.getResource(testResourceName)!!.toURI())
         .inputStream()
         .use{
             parserConstructor.createIfAble(it.bufferedReader().readLines())

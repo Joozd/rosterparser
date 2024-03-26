@@ -95,6 +95,7 @@ class JoozdlogV5Parser (private val lines: List<String>) : CSVParser() {
             numberOfTakeoffsByNight = flightMap["takeOffNight"]!!.toInt(),
             numberOfLandingsByDay = flightMap["landingDay"]!!.toInt(),
             numberOfLandingsByNight = flightMap["landingNight"]!!.toInt(),
+            numberOfAutolands = flightMap["autoLand"]?.toInt(),
 
             // augmented crew data can stay null if augmentedCrewData == null
             crewSize = crewSize,
@@ -110,6 +111,7 @@ class JoozdlogV5Parser (private val lines: List<String>) : CSVParser() {
             isCopilotDuty = flightMap["isCoPilot"] == "true",
             isInstructorDuty = flightMap["isInstructor"] == "true",
             isDualDuty = flightMap["isDual"] == "true",
+            isPF = flightMap["isPF"] == "true",
             remarks = flightMap["remarks"]!!,
             signatureSVG = flightMap["signatureSVG"]!!
         )

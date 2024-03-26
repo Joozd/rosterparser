@@ -8,7 +8,7 @@ import kotlin.time.Duration
  * Represents a flight found within a roster. For organization and context, instances of this class should be contained within a [ParsedRoster].
  *
  * @property date The departure date. The timezone can vary and is specified in the accompanying [ParsedRoster].
- * @property flightNumber The flight number. It can be an empty string ("") for flights without a number.
+ * @property flightNumber The flight number. Optional, defaults to null
  * @property takeoffAirport The departure airport. Format varies (e.g., AMS, EHAM, Amsterdam Schiphol Airport) based on the roster provided.
  * @property landingAirport The arrival airport. Format can vary similar to takeoffAirport, based on the roster provided.
  * @property departureTime The scheduled departure time. Timezone specifics are as per the roster and noted in [ParsedRoster].
@@ -24,6 +24,7 @@ import kotlin.time.Duration
  * @property numberOfTakeoffsByNight The number of takeoffs performed during nighttime. Optional, defaults to null.
  * @property numberOfLandingsByDay The number of landings performed during daylight. Optional, defaults to null.
  * @property numberOfLandingsByNight The number of landings performed during nighttime. Optional, defaults to null.
+ * @property numberOfAutolands The number of automatic landings performed during this duty
  *
  * @property crewSize The size of the crew piloting this flight. Optional, defaults to null.
  * @property atControlsForTakeoff Indicates if pilot is at the controls for takeoff on this flight. Optional, defaults to null.
@@ -33,6 +34,7 @@ import kotlin.time.Duration
  *
  * @property namePIC The name of the Pilot in Command (PIC). Optional, defaults to null.
  * @property namesNotPIC The names of crew members who are not the PIC. Optional, defaults to null.
+ * @property isPF Indicates if this duty is done as Pilot Flying.
  * @property isPICDuty Indicates if the duty was performed as PIC. Optional, defaults to null.
  * @property isPICUSDuty Indicates if the duty was performed under PICUS (Pilot in Command Under Supervision) conditions. Optional, defaults to null.
  * @property isCopilotDuty Indicates if the duty was performed as a co-pilot. Optional, defaults to null.
@@ -44,7 +46,7 @@ import kotlin.time.Duration
 
 data class ParsedFlight(
     override val date: LocalDate,
-    val flightNumber: String = "",
+    val flightNumber: String? = null,
     val takeoffAirport: String,
     val landingAirport: String,
     val departureTime: LocalDateTime,
@@ -60,6 +62,7 @@ data class ParsedFlight(
     val numberOfTakeoffsByNight: Int? = null,
     val numberOfLandingsByDay: Int? = null,
     val numberOfLandingsByNight: Int? = null,
+    val numberOfAutolands: Int? = null,
 
     val crewSize: Int? = null,
     val atControlsForTakeoff: Boolean? = null,
@@ -69,6 +72,7 @@ data class ParsedFlight(
 
     val namePIC: String? = null,
     val namesNotPIC: List<String>? = null,
+    val isPF: Boolean? = null,
     val isPICDuty: Boolean? = null,
     val isPICUSDuty: Boolean? = null,
     val isCopilotDuty: Boolean? = null,
