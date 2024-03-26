@@ -35,7 +35,7 @@ class JoozdlogV5ParserTest: CsvParserSubclassTest() {
         assertEquals(2, parsedRoster.parsedDuties.size, "Expected 2 duties in the parsed roster")
         assertEquals(ZoneOffset.UTC, parsedRoster.timezoneOfRoster, "Timezone of roster does not match the expected")
         assertFalse(parsedRoster.flightsArePlanned, "Expected flightsArePlanned to be false")
-        assertEquals(correctTimeRange, parsedRoster.coveredTime, "Covered time range does not match the expected")
+        assertEquals(correctTimeRange, parsedRoster.coveredDates, "Covered time range does not match the expected")
     }
 
     companion object{
@@ -81,7 +81,7 @@ class JoozdlogV5ParserTest: CsvParserSubclassTest() {
             instructionGiven = false
         )
 
-        val correctTimeRange: ClosedRange<LocalDateTime> = LocalDateTime.of(2024, 1, 13, 0, 0)..LocalDateTime.of(2024, 3, 6, 0, 0)
+        val correctTimeRange: ClosedRange<LocalDate> = LocalDate.of(2024, 1, 13)..LocalDate.of(2024, 3, 5)
 
     }
 }
