@@ -12,6 +12,10 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
+/**
+ * Parses a MCC Pilot Log tab-separated CSV file
+ * This is the format I have for my logbook from the 2010's.
+ */
 class MccPilotLogParser(private val lines: List<String>) : CSVParser() {
     /**
      * creates a [ParsedRoster] from the data found in the InputStream used to create this RosterParser.

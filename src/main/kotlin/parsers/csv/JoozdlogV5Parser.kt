@@ -10,6 +10,10 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.time.Duration.Companion.minutes
 
+/**
+ * Parses a Joozdlog V5 CSV file
+ * A Joozdlog V5 CSV File is the backup file created by Joozdlog.
+ */
 class JoozdlogV5Parser (private val lines: List<String>) : CSVParser() {
     /**
      * creates a [ParsedRoster] from the data found in the InputStream used to create this RosterParser.
