@@ -1,8 +1,9 @@
+import nl.joozd.rosterparser.ParsedRoster
 import nl.joozd.rosterparser.RosterParser
-import nl.joozd.rosterparser.parsers.CSVParser
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertFailsWith
+import kotlin.test.assertIs
 
 class RosterParserTest {
     private val csvTestFile = File(this::class.java.classLoader.getResource("joozdlogv5test.csv")!!.toURI())
@@ -13,7 +14,15 @@ class RosterParserTest {
         val parser = csvTestFile.inputStream().use {
             RosterParser.ofInputStream(it, mimeType)
         }
-        assert(parser is RosterParser)
+        assertIs<RosterParser>(parser)
+    }
+
+    @Test
+    fun `test if a ParsedRoster object is created`(){
+        val parsedRoster = csvTestFile.inputStream().use {
+            RosterParser.getRoster(it, mimeType)
+        }
+        assertIs<ParsedRoster>(parsedRoster)
     }
 
     @Test
