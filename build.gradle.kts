@@ -10,6 +10,11 @@ repositories {
     mavenCentral()
 }
 
+val sourceJar by tasks.registering(Jar::class) {
+    archiveClassifier.set("sources")
+    from(sourceSets["main"].allSource)
+}
+
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
@@ -18,6 +23,18 @@ publishing {
             groupId = "nl.joozd.rosterparser"
             artifactId = "rosterparser"
             version = "0.0.1"
+
+            artifact(sourceJar.get()) // Attach the source JAR
+
+            pom {
+                licenses {
+                    license {
+                        name.set("The Affero General Public License, Version 3")
+                        url.set("https://www.gnu.org/licenses/agpl-3.0.html")
+                        distribution.set("repo")
+                    }
+                }
+            }
         }
     }
     repositories {
