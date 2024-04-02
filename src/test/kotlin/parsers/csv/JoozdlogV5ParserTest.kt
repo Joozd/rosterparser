@@ -62,8 +62,8 @@ class JoozdlogV5ParserTest: CsvParserSubclassTest() {
             atControlsForLanding = true,
             augmentedCrewTimeForTakeoffLanding = 45.minutes,
             augmentedCrewFixedRestTime = null,
-            namePIC = "PIC Name",
-            namesNotPIC = listOf("other name 1", "SELF", "Yet Another Name"),
+            pilotInCommand = "PIC Name",
+            personsNotPIC = listOf("other name 1", "SELF", "Yet Another Name"),
             isPF = true,
             isPICDuty = false,
             isPICUSDuty = false,
@@ -79,7 +79,7 @@ class JoozdlogV5ParserTest: CsvParserSubclassTest() {
             duration = 3.hours + 30.minutes,
             simulatorType = "B772",
             remarks = "OPC/LPC",
-            names = listOf("Instructors name", "Other Trainees Name"),
+            persons = listOf("Instructors name", "Other Trainees Name"),
             instructionGiven = false
         )
 

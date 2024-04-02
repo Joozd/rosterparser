@@ -1,9 +1,6 @@
 package nl.joozd.rosterparser.parsers.csv
 
-import nl.joozd.rosterparser.ParsedFlight
-import nl.joozd.rosterparser.ParsedRoster
-import nl.joozd.rosterparser.ParsedSimulatorDuty
-import nl.joozd.rosterparser.ParsingException
+import nl.joozd.rosterparser.*
 import nl.joozd.rosterparser.parsers.CSVParser
 import nl.joozd.rosterparser.parsers.factories.CSVParserConstructor
 import java.time.LocalDateTime
@@ -53,7 +50,7 @@ class JoozdlogV5Parser (private val lines: List<String>) : CSVParser() {
             duration = flightMap["simTime"]!!.toInt().minutes,
             simulatorType = flightMap["aircraftType"]!!,
             remarks = flightMap["remarks"]!!,
-            names = otherNames,
+            persons = otherNames,
             instructionGiven = flightMap["isInstructor"] == "true",
         )
     }
@@ -108,8 +105,8 @@ class JoozdlogV5Parser (private val lines: List<String>) : CSVParser() {
             augmentedCrewTimeForTakeoffLanding = augmentedCrewTimeForTakeoffLanding?.minutes,
             augmentedCrewFixedRestTime = augmentedCrewFixedRestTime?.minutes,
 
-            namePIC = flightMap["name"]!!,
-            namesNotPIC = otherNames,
+            pilotInCommand = Person.fromString(flightMap["name"]!!),
+            personsNotPIC = otherNames,
             isPICDuty = isPIC,
             isPICUSDuty = flightMap["isPICUS"] == "true",
             isCopilotDuty = flightMap["isCoPilot"] == "true",
@@ -122,7 +119,9 @@ class JoozdlogV5Parser (private val lines: List<String>) : CSVParser() {
 
     }
 
-    private fun getOtherNames(flightMap: Map<String, String>) = flightMap["name2"]!!.split("|")
+    private fun getOtherNames(flightMap: Map<String, String>) = flightMap["name2"]!!.split("|").map{
+        Person.fromString(it)
+    }
 
 
     companion object : CSVParserConstructor {

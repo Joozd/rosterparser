@@ -1,6 +1,5 @@
 package nl.joozd.rosterparser
 
-import nl.joozd.rosterparser.ParsedDuty
 import java.time.LocalDate
 import kotlin.time.Duration
 
@@ -10,7 +9,7 @@ import kotlin.time.Duration
  * @property duration The Duration of this simulator duty.
  * @property simulatorType The type of simulator used (like B789, or FNPT-2)
  * @property remarks Remarks about this simulator duty, like the name of the session.
- * @property names List of names of people in this simulator duty. Optional, defaults to null.
+ * @property persons List of people in this simulator duty. Optional, defaults to null.
  * @property instructionGiven If true, this simulator duty was given as instructor. Optional, defaults to null.
  */
 data class ParsedSimulatorDuty(
@@ -18,6 +17,6 @@ data class ParsedSimulatorDuty(
     val duration: Duration,
     val simulatorType: String,
     val remarks: String? = null,
-    val names: List<String>? = null,
+    val persons: List<Person>? = null,
     val instructionGiven: Boolean? = null
 ): ParsedDuty

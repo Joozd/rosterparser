@@ -32,8 +32,8 @@ import kotlin.time.Duration
  * @property augmentedCrewTimeForTakeoffLanding The amount of time used for takeoff and landing when calculating time at controls for a flight with an augmented crew. Optional, defaults to null.
  * @property augmentedCrewFixedRestTime The amount of time the crew member was not at the controls for this flight due to the crew being augmented. Optional, defaults to null.
  *
- * @property namePIC The name of the Pilot in Command (PIC). Optional, defaults to null.
- * @property namesNotPIC The names of crew members who are not the PIC. Optional, defaults to null.
+ * @property pilotInCommand The Pilot in Command (PIC). Optional, defaults to null.
+ * @property personsNotPIC The crew members who are not the PIC. Optional, defaults to null.
  * @property isPF Indicates if this duty is done as Pilot Flying.
  * @property isPICDuty Indicates if the duty was performed as PIC. Optional, defaults to null.
  * @property isPICUSDuty Indicates if the duty was performed under PICUS (Pilot in Command Under Supervision) conditions. Optional, defaults to null.
@@ -70,8 +70,8 @@ data class ParsedFlight(
     val augmentedCrewTimeForTakeoffLanding: Duration? = null,
     val augmentedCrewFixedRestTime: Duration? = null,
 
-    val namePIC: String? = null,
-    val namesNotPIC: List<String>? = null,
+    val pilotInCommand: Person? = null,
+    val personsNotPIC: List<Person>? = null,
     val isPF: Boolean? = null,
     val isPICDuty: Boolean? = null,
     val isPICUSDuty: Boolean? = null,
