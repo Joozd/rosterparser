@@ -1,9 +1,6 @@
 package nl.joozd.rosterparser.parsers.csv
 
-import nl.joozd.rosterparser.ParsedFlight
-import nl.joozd.rosterparser.ParsedRoster
-import nl.joozd.rosterparser.ParsedSimulatorDuty
-import nl.joozd.rosterparser.ParsingException
+import nl.joozd.rosterparser.*
 import nl.joozd.rosterparser.parsers.CSVParser
 import nl.joozd.rosterparser.parsers.factories.CSVParserConstructor
 import java.time.LocalDate
@@ -52,7 +49,7 @@ class MccPilotLogParser(private val lines: List<String>) : CSVParser() {
             duration = getDuration(flightMap[TIME_TOTALSIM]),
             simulatorType = flightMap[AC_MODEL]?: "",
             remarks = flightMap[REMARKS],
-            names = getOtherNames(flightMap)
+            persons = getOtherNames(flightMap)
         )
     }
 
@@ -82,8 +79,8 @@ class MccPilotLogParser(private val lines: List<String>) : CSVParser() {
             numberOfLandingsByDay = flightMap[LDG_DAY]?.takeIf { it.isNotBlank() }?.toInt(),
             numberOfLandingsByNight = flightMap[LDG_NIGHT]?.takeIf { it.isNotBlank() }?.toInt(),
 
-            namePIC = flightMap[PILOT1_NAME],
-            namesNotPIC = getOtherNames(flightMap),
+            pilotInCommand = flightMap[PILOT1_NAME]?.let { Person.fromString(it)},
+            personsNotPIC = getOtherNames(flightMap),
             isPICDuty = getDuration(flightMap[TIME_PIC]) > 0.minutes,
             isPICUSDuty = getDuration(flightMap[TIME_PICUS]) > 0.minutes,
             isCopilotDuty = getDuration(flightMap[TIME_SIC]) > 0.minutes,
@@ -96,8 +93,10 @@ class MccPilotLogParser(private val lines: List<String>) : CSVParser() {
     /**
      * Combines the values in NAME2, NAME3 and NAME4 into a List
      */
-    private fun getOtherNames(flightMap: Map<String, String>): List<String> =
-        listOfNotNull(flightMap[PILOT2_NAME], flightMap[PILOT3_NAME], flightMap[PILOT4_NAME])
+    private fun getOtherNames(flightMap: Map<String, String>): List<Person> =
+        listOfNotNull(flightMap[PILOT2_NAME], flightMap[PILOT3_NAME], flightMap[PILOT4_NAME]).map{
+            Person.fromString(it)
+        }
 
     private fun getDuration(durationString: String?): Duration {
         if (durationString.isNullOrBlank()) return 0.minutes

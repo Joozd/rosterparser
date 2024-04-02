@@ -2,6 +2,7 @@ package parsers.csv
 
 import nl.joozd.rosterparser.ParsedFlight
 import nl.joozd.rosterparser.ParsedSimulatorDuty
+import nl.joozd.rosterparser.Person
 import nl.joozd.rosterparser.parsers.csv.JoozdlogV5Parser
 import nl.joozd.rosterparser.parsers.factories.CSVParserConstructor
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -62,8 +63,8 @@ class JoozdlogV5ParserTest: CsvParserSubclassTest() {
             atControlsForLanding = true,
             augmentedCrewTimeForTakeoffLanding = 45.minutes,
             augmentedCrewFixedRestTime = null,
-            pilotInCommand = "PIC Name",
-            personsNotPIC = listOf("other name 1", "SELF", "Yet Another Name"),
+            pilotInCommand = Person.fromString("PIC Name"),
+            personsNotPIC = listOf("other name 1", "SELF", "Yet Another Name").map { Person.fromString(it)},
             isPF = true,
             isPICDuty = false,
             isPICUSDuty = false,
@@ -79,7 +80,7 @@ class JoozdlogV5ParserTest: CsvParserSubclassTest() {
             duration = 3.hours + 30.minutes,
             simulatorType = "B772",
             remarks = "OPC/LPC",
-            persons = listOf("Instructors name", "Other Trainees Name"),
+            persons = listOf("Instructors name", "Other Trainees Name").map { Person.fromString(it)},
             instructionGiven = false
         )
 
