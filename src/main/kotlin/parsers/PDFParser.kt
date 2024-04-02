@@ -1,6 +1,7 @@
 package nl.joozd.rosterparser.parsers
 
 import nl.joozd.rosterparser.RosterParser
+import nl.joozd.rosterparser.parsers.factories.PDFParserFactory
 import java.io.InputStream
 
 /**
@@ -17,8 +18,7 @@ abstract class PDFParser: RosterParser() {
          *
          * Contains blocking IO
          */
-        internal fun ofInputStream(inputStream: InputStream): PDFParser? {
-            TODO()
-        }
+        internal fun ofInputStream(inputStream: InputStream): PDFParser? =
+            PDFParserFactory.getPdfParser(inputStream)
     }
 }

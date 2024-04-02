@@ -1,9 +1,12 @@
-package parsers.csv
+package parsers.pdf
 
+import com.itextpdf.text.pdf.PdfReader
+import com.itextpdf.text.pdf.parser.PdfTextExtractor
+import com.itextpdf.text.pdf.parser.SimpleTextExtractionStrategy
 import nl.joozd.rosterparser.RosterParser
 import nl.joozd.rosterparser.parsers.factories.CSVParserConstructor
-import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.Assertions.assertNull
+import nl.joozd.rosterparser.parsers.factories.PDFParserConstructor
+import org.junit.jupiter.api.Assertions
 import parsers.ParserSubclassTest
 import java.io.File
 import kotlin.test.Test
@@ -16,23 +19,31 @@ import kotlin.test.assertIs
  * @property testResourceName Name of the resource in test/resources that holds the test data
  * @property parserConstructor the [CSVParserConstructor] object that constructs the parser to be tested
  */
-abstract class CsvParserSubclassTest: ParserSubclassTest() {
-    abstract val parserConstructor: CSVParserConstructor
+abstract class PdfParserSubclassTest: ParserSubclassTest() {
+    abstract val parserConstructor: PDFParserConstructor
 
     protected val parser by lazy { createParser() }
     private fun createParser() = File(this::class.java.classLoader.getResource(testResourceName)!!.toURI())
         .inputStream()
         .use{
-            parserConstructor.createIfAble(it.bufferedReader().readLines())
+            val reader = PdfReader(it)
+            val lines = (1..reader.numberOfPages).map { page ->
+                PdfTextExtractor.getTextFromPage(reader, page, SimpleTextExtractionStrategy()).lines()
+            }.flatten()
+            parserConstructor.createIfAble(lines, reader)
         }
 
     @Test
     fun testConstructsCorrectly() {
         // Check bad data handling:
-        assertNull(parserConstructor.createIfAble(listOf("Bad Data")), "Parser should return null for bad data")
+        val pdfBadDataFile = File(this::class.java.classLoader.getResource("pdf_bad_data.pdf")!!.toURI())
+        Assertions.assertNull(
+            parserConstructor.createIfAble(listOf("Bad Data"), PdfReader(pdfBadDataFile.inputStream())),
+            "Parser should return null for bad data"
+        )
 
         // Check if parser can be made from the data and is of the correct type
-        assertNotNull(parser, "Parser should not be null")
+        Assertions.assertNotNull(parser, "Parser should not be null")
 
         // Additional type check if needed, replace ExpectedParserType with the expected type
         assertIs<RosterParser>(parser, "Parser is not of the expected type")

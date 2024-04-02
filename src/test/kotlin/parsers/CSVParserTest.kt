@@ -13,7 +13,7 @@ class CSVParserTest {
     @Test
     fun testCsvParserCreation(){
         val parser = csvTestFile.inputStream().use{
-            CSVParser.ofInputStream(it)
+            RosterParser.ofInputStream(it, mimeTypeCSV)
         }
         assertIs<CSVParser>(parser)
     }
