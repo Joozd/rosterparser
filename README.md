@@ -41,9 +41,12 @@ val parsedRoster = csvTestFile.inputStream().use {
 
 Replace `"path/to/your/roster.csv"` with the actual path to your roster file and `Format.CSV` with the appropriate format of your roster file.
 
-## License
+## License: AGPL
 
 RosterParser is distributed under the Affero General Public License (AGPL). This ensures that all modifications and derived works are also licensed under the AGPL. By using this library, you are agreeing to comply with the terms of this license.
+
+The reason we chose this licence is that one of the modules used to parse PDF data requires us to.
+If you need a less restricting license, and can do without the PDF functionality, let me know and we can work something out.
 
 The source code of RosterParser, including any modifications or derived works, is available on [GitHub](https://github.com/Joozd/rosterparser/). This fulfills the AGPL requirement that all software interacting with users over a network provide access to its source code.
 
