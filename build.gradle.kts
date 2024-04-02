@@ -13,6 +13,12 @@ repositories {
     mavenCentral()
 }
 
+dependencies {
+    testImplementation("org.jetbrains.kotlin:kotlin-test")
+    implementation ("com.itextpdf:itextg:5.5.10") // iText PDF for PDF parsing. This requires AGPL License.
+    // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1-Beta") // Kotlin Coroutines, not used at the moment
+}
+
 val sourceJar by tasks.registering(Jar::class) {
     archiveClassifier.set("sources")
     from(sourceSets["main"].allSource)
@@ -68,10 +74,6 @@ publishing {
             }
         }
     }
-}
-
-dependencies {
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
 }
 
 tasks.dokkaHtml {
