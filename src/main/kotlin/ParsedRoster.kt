@@ -5,7 +5,6 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZoneOffset
 
-
 /**
  * A Parsed roster contains the parsed duties, as well as metadata about the parsed roster.
  * @property parsedDuties A list of all the duties in this roster
@@ -82,11 +81,7 @@ data class ParsedRoster(
 
 
         /**
-         * Constructs a [ParsedRoster] with the current configuration of the builder.
-         * This method uses the duties added via [addDuty], and the time zone, start, and end
-         * times specified through direct property access.
-         *
-         * @return A [ParsedRoster] instance configured according to the builder's settings.
+         * Build the ParsedRoster from the data set in this Builder.
          */
         fun build() = ParsedRoster(
             parsedDuties = foundDuties,
@@ -97,6 +92,16 @@ data class ParsedRoster(
     }
 
     companion object {
+        /**
+         * Builds a [ParsedRoster] instance using the [Builder] to configure its properties.
+         * Within the [init] lambda, you have access to the [Builder]'s functions and properties
+         * allowing you to set options such as [Builder.timeZone], [Builder.rosterPeriod],
+         * and [Builder.flightsArePlanned]. You can also add flights using [Builder.addDuty].
+         *
+         * @param init A lambda with [Builder] as its receiver, used for configuring the [ParsedRoster].
+         * @return A configured [ParsedRoster] instance.
+         * @see Builder for more details on the available configuration options.
+         */
         internal fun build(init: Builder.() -> Unit): ParsedRoster {
             // Create an instance of Builder, apply the lambda, and then build the ParsedRoster
             return Builder().apply(init).build()

@@ -214,6 +214,16 @@ class KlmMonthlyParser(private val lines: List<String>) : PDFParser() {
     companion object : PDFParserConstructor {
         private const val TEXT_TO_SEARCH_FOR = "VOOR VRAGEN OVER VLIEGUREN: FLIGHTCREWSUPPORT@KLM.COM"
 
+        /**
+         * If [pdfLines] can be used to create this object, create it. Else, return null.
+         * As a fallback option, [pdfReader] can be used for creation, but it should only be a last resort because
+         * of performance concerns (parsing a PDF is expensive and there could be a lot of parsers trying to be created).
+         * @param pdfLines The lines in this document as received from
+         *  PdfTextExtractor.getTextFromPage(reader, page, SimpleTextExtractionStrategy()).lines()`
+         *  (all pages concatenated). This is the prefered data to determine
+         * @param pdfReader PdfReader object containing the PDF roster to be parsed, if able.
+         *  Not recommended to use this for checking if the parser can be created due to performance reasons.
+         */
         override fun createIfAble(pdfLines: List<String>, pdfReader: PdfReader): KlmMonthlyParser? =
             if (pdfLines.any { TEXT_TO_SEARCH_FOR in it })
                 KlmMonthlyParser(pdfLines)
