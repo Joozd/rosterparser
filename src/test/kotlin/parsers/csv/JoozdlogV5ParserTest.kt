@@ -1,5 +1,6 @@
 package parsers.csv
 
+import nl.joozd.rosterparser.AirportFormat
 import nl.joozd.rosterparser.ParsedFlight
 import nl.joozd.rosterparser.ParsedSimulatorDuty
 import nl.joozd.rosterparser.Person
@@ -37,6 +38,7 @@ class JoozdlogV5ParserTest: CsvParserSubclassTest() {
         assertEquals(ZoneOffset.UTC, parsedRoster.timezoneOfRoster, "Timezone of roster does not match the expected")
         assertFalse(parsedRoster.flightsArePlanned, "Expected flightsArePlanned to be false")
         assertEquals(correctTimeRange, parsedRoster.coveredDates, "Covered time range does not match the expected")
+        assertEquals(correctAirportFormat, parsedRoster.airportFormat, "Airport Format does not match the expected")
     }
 
     companion object{
@@ -85,6 +87,8 @@ class JoozdlogV5ParserTest: CsvParserSubclassTest() {
         )
 
         val correctTimeRange: ClosedRange<LocalDate> = LocalDate.of(2024, 1, 13)..LocalDate.of(2024, 3, 5)
+
+        val correctAirportFormat = AirportFormat.ICAO
 
     }
 }

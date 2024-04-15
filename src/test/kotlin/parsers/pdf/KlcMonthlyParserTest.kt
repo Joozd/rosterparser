@@ -1,5 +1,6 @@
 package parsers.pdf
 
+import nl.joozd.rosterparser.AirportFormat
 import nl.joozd.rosterparser.ParsedFlight
 import nl.joozd.rosterparser.parsers.factories.PDFParserConstructor
 import nl.joozd.rosterparser.parsers.pdf.KlcMonthlyParser
@@ -36,6 +37,7 @@ class KlcMonthlyParsersTest: PdfParserSubclassTest() {
         assertEquals(ZoneOffset.UTC, parsedRoster.timezoneOfRoster, "Timezone of roster does not match the expected")
         assertFalse(parsedRoster.flightsArePlanned, "flightsArePlanned is not set as expected (actual value: ${parsedRoster.flightsArePlanned}")
         assertEquals(correctTimeRange, parsedRoster.coveredDates, "Covered time range does not match the expected")
+        assertEquals(correctAirportFormat, parsedRoster.airportFormat, "Airport Format does not match the expected")
     }
 
     companion object{
@@ -58,5 +60,6 @@ class KlcMonthlyParsersTest: PdfParserSubclassTest() {
 //        )
 
         private val correctTimeRange = LocalDate.of(2018,5,1)..LocalDate.of(2018, 5, 31)
+        val correctAirportFormat = AirportFormat.IATA
     }
 }

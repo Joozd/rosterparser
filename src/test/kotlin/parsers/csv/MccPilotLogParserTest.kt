@@ -1,5 +1,6 @@
 package parsers.csv
 
+import nl.joozd.rosterparser.AirportFormat
 import nl.joozd.rosterparser.parsers.csv.MccPilotLogParser
 import nl.joozd.rosterparser.parsers.factories.CSVParserConstructor
 import org.junit.jupiter.api.Assertions
@@ -14,7 +15,7 @@ class MccPilotLogParserTest: CsvParserSubclassTest() {
     override val parserConstructor: CSVParserConstructor = MccPilotLogParser
 
     @Test
-    fun testJoozdlogV5Parser() {
+    fun testMccPilotLogParser() {
         Assertions.assertNotNull(parser, "Parser is null, cannot be constructed from test data")
         assertIs<MccPilotLogParser>(parser, "Parser is not an instance of JoozdlogV5Parser")
 
@@ -31,6 +32,12 @@ class MccPilotLogParserTest: CsvParserSubclassTest() {
         assertFalse(parsedRoster.flightsArePlanned, "Expected flightsArePlanned to be false")
         println(parsedRoster.coveredDates)
         //assertEquals(JoozdlogV5ParserTest.correctTimeRange, parsedRoster.coveredDates, "Covered time range does not match the expected")
+        assertEquals(correctAirportFormat, parsedRoster.airportFormat, "Airport Format does not match the expected")
+    }
+
+
+    companion object{
+        val correctAirportFormat = AirportFormat.IATA
     }
 
 }
