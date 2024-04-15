@@ -10,13 +10,19 @@ import java.time.ZoneOffset
  * @property parsedDuties A list of all the duties in this roster
  * @property timezoneOfRoster The timezone of all the times in this roster
  * @property coveredDates The time span covered by this roster (e.g. 2024-03-24 until 2024-03-31)
+ * @property airportFormat The format used for the identifiers of airports.
+ *  Airports that do not have the identifier specified can fall back to a broader format.
+ *  Generally, go IATA -> ICAO -> other identifier
+ *  so if set to IATA, Hilversum (NL) would be EHHV and Wickenburg (USA/AZ) would be E25.
  * @property flightsArePlanned if true, flights are planned (a roster). If false, flights are completed (an overview).
  */
 data class ParsedRoster(
     val parsedDuties: List<ParsedDuty>,
     val timezoneOfRoster: ZoneId,
     val coveredDates: ClosedRange<LocalDate>,
+    val airportFormat: AirportFormat,
     val flightsArePlanned: Boolean = true
+
 ) {
     /**
      * Only the ParsedFlight items in [parsedDuties]
@@ -36,12 +42,14 @@ data class ParsedRoster(
      *
      * @property timeZone The time zone of the roster, defaulting to [ZoneOffset.UTC].
      * @property rosterPeriod The period of the roster. If not set, will default to the start of the first duty to the end of the last duty.
+     * @property airportFormat The format of the airport IDs. If not set, will default to [AirportFormat.UNKNOWN], which should not be used.
      * @property flightsArePlanned if true, flights are planned (a roster). If false, flights are completed (an overview).
      */
     internal class Builder {
         private val foundDuties = ArrayList<ParsedDuty>()
         var timeZone: ZoneId = ZoneOffset.UTC
         var rosterPeriod: ClosedRange<LocalDate>? = null
+        var airportFormat: AirportFormat = AirportFormat.UNKNOWN
         var flightsArePlanned = true
 
 
@@ -73,7 +81,7 @@ data class ParsedRoster(
          * This calculation ensures an accurate reflection of the time span of the roster's duties and is
          * finalized upon invoking the [build] method.
          */
-        private fun calculatePeriodFromDuties(): ClosedRange<LocalDate>{
+        private fun calculatePeriodFromDuties(): ClosedRange<LocalDate> {
             val earliestDate = foundDuties.minOfOrNull { it.date } ?: return LocalDate.MIN..LocalDate.MIN
             val latestDate = foundDuties.maxOfOrNull { it.date } ?: return LocalDate.MIN..LocalDate.MIN
             return earliestDate..latestDate
@@ -87,6 +95,7 @@ data class ParsedRoster(
             parsedDuties = foundDuties,
             timezoneOfRoster = timeZone,
             coveredDates = calculatePeriod(),
+            airportFormat = airportFormat,
             flightsArePlanned = flightsArePlanned
         )
     }

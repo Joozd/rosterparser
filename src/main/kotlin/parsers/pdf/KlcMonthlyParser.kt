@@ -1,6 +1,7 @@
 package nl.joozd.rosterparser.parsers.pdf
 
 import com.itextpdf.text.pdf.PdfReader
+import nl.joozd.rosterparser.AirportFormat
 import nl.joozd.rosterparser.ParsedFlight
 import nl.joozd.rosterparser.ParsedRoster
 import nl.joozd.rosterparser.ParsingException
@@ -27,6 +28,7 @@ class KlcMonthlyParser(private val lines: List<String>) : PDFParser() {
 
         val period = getPeriodFromLines(lines)
         rosterPeriod = period
+        airportFormat = AirportFormat.IATA
         flightsArePlanned = false
 
         /**

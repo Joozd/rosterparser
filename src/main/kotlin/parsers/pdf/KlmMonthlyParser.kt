@@ -1,10 +1,7 @@
 package nl.joozd.rosterparser.parsers.pdf
 
 import com.itextpdf.text.pdf.PdfReader
-import nl.joozd.rosterparser.ParsedFlight
-import nl.joozd.rosterparser.ParsedRoster
-import nl.joozd.rosterparser.ParsedSimulatorDuty
-import nl.joozd.rosterparser.ParsingException
+import nl.joozd.rosterparser.*
 import nl.joozd.rosterparser.parsers.PDFParser
 import nl.joozd.rosterparser.parsers.factories.PDFParserConstructor
 import java.time.LocalDate
@@ -57,8 +54,9 @@ class KlmMonthlyParser(private val lines: List<String>) : PDFParser() {
         }
 
         timeZone = ZoneOffset.UTC
-        flightsArePlanned = false
         rosterPeriod = period
+        airportFormat = AirportFormat.IATA
+        flightsArePlanned = false
     }
 
     /**

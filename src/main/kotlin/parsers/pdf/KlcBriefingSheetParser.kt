@@ -1,10 +1,7 @@
 package nl.joozd.rosterparser.parsers.pdf
 
 import com.itextpdf.text.pdf.PdfReader
-import nl.joozd.rosterparser.ParsedFlight
-import nl.joozd.rosterparser.ParsedRoster
-import nl.joozd.rosterparser.ParsingException
-import nl.joozd.rosterparser.Person
+import nl.joozd.rosterparser.*
 import nl.joozd.rosterparser.parsers.PDFParser
 import nl.joozd.rosterparser.parsers.factories.PDFParserConstructor
 import java.time.*
@@ -14,7 +11,7 @@ import java.util.*
 /**
  * Parses a KLC Briefing Sheet to a ParsedRoster.
  */
-class KlcBriefingSheetParser(private val lines: List<String>): PDFParser() {
+class KlcBriefingSheetParser(private val lines: List<String>) : PDFParser() {
     /**
      * creates a [ParsedRoster] from the data found in the InputStream used to create this RosterParser.
      *
@@ -24,30 +21,30 @@ class KlcBriefingSheetParser(private val lines: List<String>): PDFParser() {
      */
     override fun getRoster(): ParsedRoster = ParsedRoster.build {
         timeZone = ZoneOffset.UTC
+        airportFormat = AirportFormat.IATA
         flightsArePlanned = true
 
-        val flightsWithoutCrew = getFlightsLines(lines).map{ dutyFromLine(it) }
+        val flightsWithoutCrew = getFlightsLines(lines).map { dutyFromLine(it) }
         val crewLines = getCrewLines(lines)
         val personOnRoster = getPersonOnRoster(lines)
 
-        addNamesToFlights(flightsWithoutCrew, crewLines, personOnRoster).forEach{
+        addNamesToFlights(flightsWithoutCrew, crewLines, personOnRoster).forEach {
             addDuty(it)
         }
-
     }
 
     /**
      * Returns a list of all lines that contain a Flight
      */
     private fun getFlightsLines(lines: List<String>): List<String> {
-        val start = lines.indexOf(START_OF_FLIGHTS)+1
+        val start = lines.indexOf(START_OF_FLIGHTS) + 1
         val end = lines.indexOf(END_OF_FLIGHTS)
-        if (start < 0  || end < 0) throw ParsingException("KlcBriefingSheetParser: Could not find START_OF_FLIGHTS and/or END_OF_FLIGHTS in roster lines (error 1)")
+        if (start < 0 || end < 0) throw ParsingException("KlcBriefingSheetParser: Could not find START_OF_FLIGHTS and/or END_OF_FLIGHTS in roster lines (error 1)")
         // Only lines from START_OF_FLIGHTS to END_OF_FLIGHTS
         return lines.subList(start, end)
-            .filter{l ->
+            .filter { l ->
                 // ONly lines for which the word on index TIME_OUT is all digits. Other lines are not flights.
-                l.split(' ').getOrNull(TIME_OUT)?.all{it.isDigit()}
+                l.split(' ').getOrNull(TIME_OUT)?.all { it.isDigit() }
                     ?: false
             }
     }
@@ -83,7 +80,7 @@ class KlcBriefingSheetParser(private val lines: List<String>): PDFParser() {
      * Example flight line:
      * 03Jan KL1781 KLM63J AMS 1205 HAM 1310 01:05 00:35 - 0 E90/PHEZY 1754 1119 1782 1345
      */
-    private fun dutyFromLine(flightLine: String): ParsedFlight{
+    private fun dutyFromLine(flightLine: String): ParsedFlight {
         val words = flightLine.split(' ')
         val date = getDate(words[DATE])
         val tOut = getTime(date, words[TIME_OUT])
@@ -103,7 +100,8 @@ class KlcBriefingSheetParser(private val lines: List<String>): PDFParser() {
     /**
      * The registration is the first occurrence of a slash followed by 5 capital letters in a row on a [flightLine]
      */
-    private fun getRegistration(flightLine: String) = "/([A-Z]{5})".toRegex().find(flightLine)?.groupValues?.get(1) ?: ""
+    private fun getRegistration(flightLine: String) =
+        "/([A-Z]{5})".toRegex().find(flightLine)?.groupValues?.get(1) ?: ""
 
     private fun getTime(date: LocalDate, timeString: String): LocalDateTime {
         val formatter = DateTimeFormatter.ofPattern("HHmm")
@@ -128,13 +126,17 @@ class KlcBriefingSheetParser(private val lines: List<String>): PDFParser() {
      * @return a new list of ParsedFlight objects
      *
      */
-    private fun addNamesToFlights(flights: List<ParsedFlight>, crewLines: List<String>, personOnRoster: Person): List<ParsedFlight> = buildList{
+    private fun addNamesToFlights(
+        flights: List<ParsedFlight>,
+        crewLines: List<String>,
+        personOnRoster: Person
+    ): List<ParsedFlight> = buildList {
         val crewPsnToNameMap = makeCrewPsnToNameMap(crewLines)
 
         // List of most recently found crew, to be used until a new crew is found
         var currentCrew = emptyList<Person>()
 
-        crewLines.forEach{ line ->
+        crewLines.forEach { line ->
             /*
              * Every line is a flight
              * examples:
@@ -144,8 +146,10 @@ class KlcBriefingSheetParser(private val lines: List<String>): PDFParser() {
              * If there are numbers in a line, that means a crew change.
              */
             // update currentCrew
-            if (line.getNumberStrings().isNotEmpty()){
-                currentCrew = line.getNumberStrings().map{ psn -> crewPsnToNameMap[psn] ?: Person("ERROR")} // this error does actually happen but the rest of the roster is still valid, so no exception I think. See https://github.com/Joozd/LogbookApp/issues/4
+            if (line.getNumberStrings().isNotEmpty()) {
+                currentCrew = line.getNumberStrings().map { psn ->
+                    crewPsnToNameMap[psn] ?: Person("ERROR")
+                } // this error does actually happen but the rest of the roster is still valid, so no exception I think. See https://github.com/Joozd/LogbookApp/issues/4
             }
             val pic = currentCrew.firstOrNull()
             val otherPersons = currentCrew.drop(1).takeIf { it.isNotEmpty() }
@@ -154,13 +158,16 @@ class KlcBriefingSheetParser(private val lines: List<String>): PDFParser() {
 
 
             //dateString = 09Sep, flightNumber = KL123
-            val (dateString, flightNumber) = line.split(' ').let {it[0] to it[1]}
+            val (dateString, flightNumber) = line.split(' ').let { it[0] to it[1] }
             val date = getDate(dateString)
 
-            flights.firstOrNull{it.date == date && it.flightNumber == flightNumber}?.let{
-                add(it.copy(pilotInCommand = pic,
-                    personsNotPIC = otherPersons,
-                    isPICDuty = pic.toString() == personOnRoster.toString()) // compare string representations as ID is not added to myName
+            flights.firstOrNull { it.date == date && it.flightNumber == flightNumber }?.let {
+                add(
+                    it.copy(
+                        pilotInCommand = pic,
+                        personsNotPIC = otherPersons,
+                        isPICDuty = pic.toString() == personOnRoster.toString()
+                    ) // compare string representations as ID is not added to myName
                 )
             }
         }
@@ -170,7 +177,7 @@ class KlcBriefingSheetParser(private val lines: List<String>): PDFParser() {
      * Build a map of PSN numbers to crew member names
      */
     private fun makeCrewPsnToNameMap(crewLines: List<String>?): Map<String, Person> =
-        HashMap<String,Person>().apply {
+        HashMap<String, Person>().apply {
             crewLines?.forEach { line ->
                 putNames(line)
             }
@@ -188,8 +195,7 @@ class KlcBriefingSheetParser(private val lines: List<String>): PDFParser() {
                 val next = numbers[i + 1]
                 //raw is all text between this number and the next
                 line.substring(line.indexOf(n) + n.length until line.indexOf(next)).trim()
-            }
-            else line.drop(line.indexOf(n) + n.length).trim()
+            } else line.drop(line.indexOf(n) + n.length).trim()
 
             if (raw.isNotBlank())
                 set(numbers[i], rawNameToPerson(raw, numbers[i]))
@@ -201,7 +207,7 @@ class KlcBriefingSheetParser(private val lines: List<String>): PDFParser() {
      * "hallo ab123 456 7" will return [456, 7]
      */
     private fun String.getNumberStrings(): List<String> = split(' ')
-        .filter{ s -> s.all { it.isDigit() } }
+        .filter { s -> s.all { it.isDigit() } }
 
 
     /**
@@ -209,12 +215,24 @@ class KlcBriefingSheetParser(private val lines: List<String>): PDFParser() {
      * and turns it into a written name like "Henk van de Vries" (capitalized except for "tussenvoegsel")
      */
     private fun rawNameToPerson(rawName: String, id: String? = null): Person {
-        val nameParts = rawName.split(',').map{ it.trim() }
-        return when(nameParts.size){
+        val nameParts = rawName.split(',').map { it.trim() }
+        return when (nameParts.size) {
             0 -> Person(id = id)
-            1 -> Person(id = id, lastName = capitalizeAllWords(nameParts.first()))// John Wayne. Should not be there I think.
-            2 -> Person(id = id, firstName = capitalizeAllWords(nameParts.last()), lastName = capitalizeAllWords(nameParts.first())) // "WAYNE BOBBITT, JOHN" -> "John Wayne Bobbitt"
-            3 -> Person(id = id, firstName = capitalizeAllWords(nameParts.last()), prefix = nameParts[1].lowercase(), lastName = capitalizeAllWords(nameParts.first())) // "HAAR, TER, JAAP" -> "Jaap ter Haar"
+            1 -> Person(
+                id = id,
+                lastName = capitalizeAllWords(nameParts.first())
+            )// John Wayne. Should not be there I think.
+            2 -> Person(
+                id = id,
+                firstName = capitalizeAllWords(nameParts.last()),
+                lastName = capitalizeAllWords(nameParts.first())
+            ) // "WAYNE BOBBITT, JOHN" -> "John Wayne Bobbitt"
+            3 -> Person(
+                id = id,
+                firstName = capitalizeAllWords(nameParts.last()),
+                prefix = nameParts[1].lowercase(),
+                lastName = capitalizeAllWords(nameParts.first())
+            ) // "HAAR, TER, JAAP" -> "Jaap ter Haar"
             else -> Person(id = id) // no name, probably preferable to a ParsingException.
         }
     }
@@ -222,8 +240,11 @@ class KlcBriefingSheetParser(private val lines: List<String>): PDFParser() {
     /**
      * This string now starts with a capital.
      */
-    private fun String.withCapital(): String = lowercase(Locale.ROOT).replaceFirstChar { if (it.isLowerCase()) it.titlecase(
-        Locale.ROOT) else it.toString() }
+    private fun String.withCapital(): String = lowercase(Locale.ROOT).replaceFirstChar {
+        if (it.isLowerCase()) it.titlecase(
+            Locale.ROOT
+        ) else it.toString()
+    }
 
 
     /**
@@ -246,7 +267,7 @@ class KlcBriefingSheetParser(private val lines: List<String>): PDFParser() {
         return rawNameToPerson(rawName)
     }
 
-    companion object: PDFParserConstructor{
+    companion object : PDFParserConstructor {
         private const val LINE_TO_LOOK_AT = 0
         private const val TEXT_TO_SEARCH_FOR = "Cockpit Briefing for"
 
@@ -268,6 +289,7 @@ class KlcBriefingSheetParser(private val lines: List<String>): PDFParser() {
         // Indices in split flight lines
         private const val DATE = 0
         private const val FLIGHTNUMBER = 1
+
         // callsign = 2
         private const val ORIG = 3
         private const val TIME_OUT = 4
