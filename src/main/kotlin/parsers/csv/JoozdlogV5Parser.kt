@@ -11,7 +11,7 @@ import kotlin.time.Duration.Companion.minutes
  * Parses a Joozdlog V5 CSV file
  * A Joozdlog V5 CSV File is the backup file created by Joozdlog.
  */
-class JoozdlogV5Parser (private val lines: List<String>) : CSVParser() {
+class JoozdlogV5Parser(private val lines: List<String>) : CSVParser() {
     /**
      * creates a [ParsedRoster] from the data found in the InputStream used to create this RosterParser.
      *
@@ -20,6 +20,10 @@ class JoozdlogV5Parser (private val lines: List<String>) : CSVParser() {
      * @throws ParsingException when the data used to construct this parser cannot be parsed after all
      */
     override fun getRoster(): ParsedRoster = ParsedRoster.build {
+        timeZone = ZoneOffset.UTC
+        flightsArePlanned = false
+        airportFormat = AirportFormat.ICAO
+
         val keys = FINGERPRINT.split(";")
         lines.drop(1).forEach { line ->
             try {
@@ -34,15 +38,14 @@ class JoozdlogV5Parser (private val lines: List<String>) : CSVParser() {
                 throw ParsingException("Cannot parse line $line", e)
             }
         }
-        timeZone = ZoneOffset.UTC
-        flightsArePlanned = false
+
     }
 
     /**
      * Maps a flightMap to a ParsedSimulatorDuty
      */
     private fun flightMapToSim(flightMap: Map<String, String>): ParsedSimulatorDuty {
-        val date = LocalDateTime.parse(flightMap["timeOut"]?.dropLast(1)).toLocalDate()
+        val date = LocalDateTime.parse(flightMap["timeOut"]?.dropLast(1) ?: throw(ParsingException("JoozdlogV5Parser: No \'timeOut\' in header."))).toLocalDate()
         val otherNames = getOtherNames(flightMap)
 
         return ParsedSimulatorDuty(
@@ -59,8 +62,8 @@ class JoozdlogV5Parser (private val lines: List<String>) : CSVParser() {
      * Maps a flightMap to a ParsedFlight
      */
     private fun flightMapToFlight(flightMap: Map<String, String>): ParsedFlight {
-        val timeOut = LocalDateTime.parse(flightMap["timeOut"]?.dropLast(1))
-        val timeIn = LocalDateTime.parse(flightMap["timeOut"]?.dropLast(1))
+        val timeOut = LocalDateTime.parse(flightMap["timeOut"]?.dropLast(1) ?: throw(ParsingException("JoozdlogV5Parser: No \'timeOut\' in header.")))
+        val timeIn = LocalDateTime.parse(flightMap["timeIn"]?.dropLast(1) ?: throw(ParsingException("JoozdlogV5Parser: No \'timeOut\' in header.")))
         val date = timeOut.toLocalDate()
         val correctedTotalTime = flightMap["correctedTotalTime"]!!.toInt().takeIf { it != 0 }?.minutes
         val multiPilotTime = flightMap["multiPilotTime"]!!.toInt().takeIf { it != 0 }?.minutes
@@ -72,12 +75,17 @@ class JoozdlogV5Parser (private val lines: List<String>) : CSVParser() {
         // get augmentedCrew int, if it is not 0, make an AugmentedCrew object from it
         val augmentedCrewData =
             if (isPIC) null // PIC does not get rest so no augmented crew data will be saved
-            else flightMap["augmentedCrew"]!!.toInt().takeIf { it != 0}?.let { AugmentedCrew.fromInt(it) }
-        val crewSize = if (augmentedCrewData?.isFixedTime == false) augmentedCrewData.size else null // fixed rest times do not get a crew size
-        val atControlsForTakeoff = if (augmentedCrewData?.isFixedTime == false) augmentedCrewData.takeoff else null // fixed rest times do not get didtakeoff info
-        val atControlsForLanding = if (augmentedCrewData?.isFixedTime == false) augmentedCrewData.landing else null // fixed rest times do not get didlanding info
-        val augmentedCrewTimeForTakeoffLanding = if (augmentedCrewData?.isFixedTime == false) augmentedCrewData.times else null // fixed rest times do not get didlanding info
-        val augmentedCrewFixedRestTime = augmentedCrewData?.times?.takeIf { augmentedCrewData.isFixedTime } // only use fixed time if its flag is set
+            else flightMap["augmentedCrew"]!!.toInt().takeIf { it != 0 }?.let { AugmentedCrew.fromInt(it) }
+        val crewSize =
+            if (augmentedCrewData?.isFixedTime == false) augmentedCrewData.size else null // fixed rest times do not get a crew size
+        val atControlsForTakeoff =
+            if (augmentedCrewData?.isFixedTime == false) augmentedCrewData.takeoff else null // fixed rest times do not get didtakeoff info
+        val atControlsForLanding =
+            if (augmentedCrewData?.isFixedTime == false) augmentedCrewData.landing else null // fixed rest times do not get didlanding info
+        val augmentedCrewTimeForTakeoffLanding =
+            if (augmentedCrewData?.isFixedTime == false) augmentedCrewData.times else null // fixed rest times do not get didlanding info
+        val augmentedCrewFixedRestTime =
+            augmentedCrewData?.times?.takeIf { augmentedCrewData.isFixedTime } // only use fixed time if its flag is set
 
         return ParsedFlight(
             flightNumber = flightMap["flightNumber"]!!,
@@ -119,7 +127,7 @@ class JoozdlogV5Parser (private val lines: List<String>) : CSVParser() {
 
     }
 
-    private fun getOtherNames(flightMap: Map<String, String>) = flightMap["name2"]!!.split("|").map{
+    private fun getOtherNames(flightMap: Map<String, String>) = flightMap["name2"]!!.split("|").map {
         Person.fromString(it)
     }
 
@@ -147,8 +155,8 @@ class JoozdlogV5Parser (private val lines: List<String>) : CSVParser() {
         val takeoff: Boolean = true,
         val landing: Boolean = true,
         val times: Int = 0,
-        val isUndefined: Boolean = false)
-    {
+        val isUndefined: Boolean = false
+    ) {
         companion object {
             /**
              * A value of 0 means "undefined"
@@ -170,7 +178,7 @@ class JoozdlogV5Parser (private val lines: List<String>) : CSVParser() {
                 )
 
             private fun Int.getBit(n: Int): Boolean {
-                require(n < Int.SIZE_BITS-1) { "$n out of range (0 - ${Int.SIZE_BITS-2}" }
+                require(n < Int.SIZE_BITS - 1) { "$n out of range (0 - ${Int.SIZE_BITS - 2}" }
                 return this.and(1.shl(n)) > 0 // it's more than 0 so the set bit is 1, whatever bit it is
             }
         }

@@ -46,7 +46,7 @@ class JoozdlogV5ParserTest: CsvParserSubclassTest() {
             takeoffAirport = "EHAM",
             landingAirport = "RCTP",
             departureTime = LocalDateTime.parse("2024-03-05T19:20"),
-            arrivalTime = LocalDateTime.parse("2024-03-05T19:20"),
+            arrivalTime = LocalDateTime.parse("2024-03-06T07:54"),
             overriddenTotalTime = null,
             multiPilotTime = 7.hours + 2.minutes,
             nightTime = 3.hours + 12.minutes,
