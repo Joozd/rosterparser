@@ -163,7 +163,7 @@ class KlcMonthlyParser(private val lines: List<String>) : PDFParser() {
         const val DEST = "dest"
         const val REGISTRATION = "registration"
         const val TIME_IN = "timeIn"
-        const val DURATION = "std"
+        const val DURATION = "duration"
     }
 
 
