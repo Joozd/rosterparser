@@ -22,8 +22,11 @@ class MccPilotLogParser(private val lines: List<String>) : CSVParser() {
      * @throws ParsingException when the data used to construct this parser cannot be parsed after all
      */
     override fun getRoster(): ParsedRoster = ParsedRoster.build {
+        airportFormat = AirportFormat.IATA
         flightsArePlanned = false
         // period is left at default (auto-set by Builder)
+        // Timezone is left at default (UTC)
+
 
         val keys = lines.firstOrNull()?.split('\t') ?: emptyList()
         lines.drop(1).forEach { line ->
@@ -42,7 +45,7 @@ class MccPilotLogParser(private val lines: List<String>) : CSVParser() {
     }
 
     private fun flightMapToSim(flightMap: Map<String, String>): ParsedSimulatorDuty {
-        val date = LocalDate.parse(flightMap[MCC_DATE])
+        val date = LocalDate.parse(flightMap[MCC_DATE] ?: throw(ParsingException("MccPilotLogParser: No \'$MCC_DATE\' in header.")))
 
         return ParsedSimulatorDuty(
             date = date,
@@ -54,9 +57,9 @@ class MccPilotLogParser(private val lines: List<String>) : CSVParser() {
     }
 
     private fun flightMapToFlight(flightMap: Map<String, String>): ParsedFlight {
-        val date = LocalDate.parse(flightMap[MCC_DATE])
-        val depTime = LocalTime.parse(flightMap[TIME_DEP]!!).atDate(date)
-        val arrTime = LocalTime.parse(flightMap[TIME_ARR]!!).atDate(date).let{
+        val date = LocalDate.parse(flightMap[MCC_DATE] ?: throw(ParsingException("MccPilotLogParser: No \'$MCC_DATE\' in header.")))
+        val depTime = LocalTime.parse(flightMap[TIME_DEP] ?: throw(ParsingException("MccPilotLogParser: No \'$TIME_DEP\' in header."))).atDate(date)
+        val arrTime = LocalTime.parse(flightMap[TIME_ARR] ?: throw(ParsingException("MccPilotLogParser: No \'$TIME_DEP\' in header."))).atDate(date).let{
             if (it < depTime)
                 it.plusDays(1)
             else it
@@ -64,8 +67,8 @@ class MccPilotLogParser(private val lines: List<String>) : CSVParser() {
 
         return ParsedFlight(
             flightNumber = flightMap[FLIGHTNUMBER],
-            takeoffAirport = flightMap[AF_DEP]!!,
-            landingAirport = flightMap[AF_ARR]!!,
+            takeoffAirport = flightMap[AF_DEP] ?: throw(ParsingException("MccPilotLogParser: No \'$AF_DEP\' in header.")),
+            landingAirport = flightMap[AF_ARR] ?: throw(ParsingException("MccPilotLogParser: No \'$AF_ARR\' in header.")),
             date = date,
             departureTime = depTime,
             arrivalTime = arrTime,
