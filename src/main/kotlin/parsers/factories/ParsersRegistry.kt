@@ -4,6 +4,7 @@ import nl.joozd.rosterparser.parsers.csv.JoozdlogV5Parser
 import nl.joozd.rosterparser.parsers.csv.MccPilotLogParser
 import nl.joozd.rosterparser.parsers.pdf.KlcBriefingSheetParser
 import nl.joozd.rosterparser.parsers.pdf.KlcMonthlyParser
+import nl.joozd.rosterparser.parsers.pdf.KlcRosterParser
 import nl.joozd.rosterparser.parsers.pdf.KlmMonthlyParser
 
 internal object ParsersRegistry {
@@ -23,7 +24,8 @@ internal object ParsersRegistry {
     val pdfParsers: List<PDFParserConstructor> = listOf(
         KlcBriefingSheetParser,
         KlmMonthlyParser,
-        KlcMonthlyParser
+        KlcMonthlyParser,
+        KlcRosterParser
     )
 
     /**
