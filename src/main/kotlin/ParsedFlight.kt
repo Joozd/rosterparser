@@ -42,6 +42,8 @@ import kotlin.time.Duration
  * @property isDualDuty Indicates if the duty was performed as dual instruction, meaning both receiving and providing instruction. Optional, defaults to null.
  * @property remarks Any additional remarks related to the flight, akin to the "Remarks" field in a pilot's logbook. Optional, defaults to null.
  * @property signatureSVG A digital representation of the signature, typically in SVG format. Optional, defaults to null.
+ *
+ * @property isDeadHeading Indicates if this flight is done as Dead Heading crew. Optional, defaults to null.
  */
 
 data class ParsedFlight(
@@ -79,5 +81,7 @@ data class ParsedFlight(
     val isInstructorDuty: Boolean? = null,
     val isDualDuty: Boolean? = null,
     val remarks: String? = null,
-    val signatureSVG: String? = null
+    val signatureSVG: String? = null,
+
+    val isDeadHeading: Boolean? = null
 ): ParsedDuty
