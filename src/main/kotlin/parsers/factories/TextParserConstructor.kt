@@ -8,8 +8,8 @@ import nl.joozd.rosterparser.parsers.TextParser
  */
 interface TextParserConstructor {
     /**
-     *  If [lines] can be used to create this object, create it. Else, return null.
+     *  If [text] can be used to create this object, create it. Else, return null.
      */
-    fun createIfAble(lines: List<String>): TextParser?
+    fun createIfAble(text: String): TextParser?
 
 }

@@ -12,9 +12,9 @@ internal object TextParserFactory {
      * @return a CSVParser object, or null if no suitable creator can be found.
      */
     fun getTextParser(inputStream: InputStream): TextParser? {
-        val lines = inputStream.bufferedReader().readLines() // closing the stream is responsibility of whoever created it
+        val text = inputStream.bufferedReader().readText() // closing the stream is responsibility of whoever created it
         return ParsersRegistry.textParsers.firstNotNullOfOrNull { creator ->
-            creator.createIfAble(lines)
+            creator.createIfAble(text)
         }
     }
 }
