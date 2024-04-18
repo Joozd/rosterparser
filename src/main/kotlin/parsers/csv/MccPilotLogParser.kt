@@ -5,6 +5,7 @@ import nl.joozd.rosterparser.parsers.CSVParser
 import nl.joozd.rosterparser.parsers.factories.CSVParserConstructor
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.ZoneOffset
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -24,8 +25,8 @@ class MccPilotLogParser(private val lines: List<String>) : CSVParser() {
     override fun getRoster(): ParsedRoster = ParsedRoster.build {
         airportFormat = AirportFormat.IATA
         flightsArePlanned = false
+        timeZone = ZoneOffset.UTC
         // period is left at default (auto-set by Builder)
-        // Timezone is left at default (UTC)
 
 
         val keys = lines.firstOrNull()?.split('\t') ?: emptyList()
