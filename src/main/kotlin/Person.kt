@@ -33,11 +33,25 @@ data class Person(
          */
         fun fromString(nameString: String): Person{
             val words = nameString.split(" ").map { it.trim()}.filter { it.isNotBlank()} // split to words, remove empty parts
-            return when(words.size){
-                0 -> Person()
-                1 -> Person(lastName = words.first())
+            return when{
+                ',' in nameString -> parseNameWithCommas(nameString)
+                words.isEmpty() -> Person()
+                words.size == 1 -> Person(lastName = words.first())
                 else -> Person(firstName = words.first(), lastName = words.drop(1).joinToString(" "))
             }
+        }
+
+        /**
+         * Parse a name like:
+         *  "Hier tot Gunter, Jan Willem van"
+         *  "ten Kate, Harry"
+         *  "Vries, de, Willem"
+         *  Some assumptions will be made about proper (Dutch) capitalization in case of prefix.
+         * TODO: Stub
+         */
+        private fun parseNameWithCommas(nameString: String): Person{
+            return Person(nameString)
+            //TODO
         }
     }
 }
