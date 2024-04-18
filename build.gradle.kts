@@ -16,6 +16,7 @@ repositories {
 dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     implementation ("com.itextpdf:itextg:5.5.10") // iText PDF for PDF parsing. This requires AGPL License.
+    implementation("org.apache.commons:commons-csv:1.10.0") // Apache Commons CSV parsing
     // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1-Beta") // Kotlin Coroutines, not used at the moment
 }
 
