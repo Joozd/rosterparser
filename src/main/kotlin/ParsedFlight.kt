@@ -17,7 +17,14 @@ import kotlin.time.Duration
  * @property overriddenTotalTime The total duration of the flight if it differs from the calculated duration between [departureTime] and [arrivalTime]. Optional, defaults to null.
  * @property multiPilotTime The duration of the flight that occurred during Multi Pilot operations. Optional, defaults to null.
  * @property nightTime The duration of the flight that occurred during nighttime. Optional, defaults to null.
- * @property ifrTime The duration of the flight operated under Instrument Flight Rules (IFR). Optional, defaults to null.
+ * @property ifrTime The duration of the flight operated under Instrument Flight Rules (IFR). If [actualIfrTime] is not null, this value must be equal or greater, as it includes all that time. Optional, defaults to null.
+ * @property picTime The time flown as Pilot in Command (PIC). This does not include [picusTime], so add these two to calculate total PIC time. Optional, defaults to null.
+ * @property picusTime The time flown as Pilot in Command Under Supervision (PICUS). This does not include [picTime], so add these two to calculate total PIC time. Optional, defaults to null.
+ * @property xcTime The duration of the flight operated under Cross Country conditions. Optional, defaults to null.
+ * @property actualIfrTime The actual time flown under Instrument Flight Rules (IFR), distinct from [ifrTime] which should include this time if not null. Optional, defaults to null.
+ * @property dualReceivedTime The duration of the flight where Dual instruction is received. Optional, defaults to null.
+ * @property dualGivenTime The duration of the flight where Dual instruction is given. Optional, defaults to null.
+ *
  * @property aircraftType The type of aircraft used for the flight. Optional, defaults to null.
  * @property aircraftRegistration The registration code of the aircraft used. Optional, defaults to null.
  * @property numberOfTakeoffsByDay The number of takeoffs performed during daylight. Optional, defaults to null.
@@ -58,6 +65,13 @@ data class ParsedFlight(
     val multiPilotTime: Duration? = null,
     val nightTime: Duration? = null,
     val ifrTime: Duration? = null,
+    val picTime: Duration? = null,
+    val picusTime: Duration? = null,
+    val xcTime: Duration? = null,
+    val actualIfrTime: Duration? = null,
+    val dualReceivedTime: Duration? = null,
+    val dualGivenTime: Duration? = null,
+
     val aircraftType: String? = null,
     val aircraftRegistration: String? = null,
     val numberOfTakeoffsByDay: Int? = null,
