@@ -52,6 +52,11 @@ data class ParsedRoster(
         var airportFormat: AirportFormat = AirportFormat.UNKNOWN
         var flightsArePlanned = true
 
+        /**
+         * Getter to get the duties currently added to this Builder object.
+         */
+        val addedDuties: List<ParsedDuty> get() = foundDuties
+
 
         /**
          * Adds a [ParsedDuty] to the list of duties for the roster.
@@ -69,21 +74,24 @@ data class ParsedRoster(
          */
 
         private fun calculatePeriod(): ClosedRange<LocalDate> = rosterPeriod
-            ?: calculatePeriodFromDuties()
+            ?: calculatePeriodFromDuties(foundDuties)
 
 
         /**
-         * Calculates the period of this duty by looking at the dates of the duties in [foundDuties].
+         * Calculates the period of this duty by looking at the dates of the duties in [duties].
          * - By default, spans from the start of the day of the first duty to the end of the day of the last duty.
          * - If no duties are added, defaults to an empty range from [LocalDate.MIN] to [LocalDate.MIN],
          *   indicating an undefined period.
          *
          * This calculation ensures an accurate reflection of the time span of the roster's duties and is
          * finalized upon invoking the [build] method.
+         *
+         * Can be used by parsers building this object
+         * if they want to calculate the period from a Collection of [ParsedDuty] objects.
          */
-        private fun calculatePeriodFromDuties(): ClosedRange<LocalDate> {
-            val earliestDate = foundDuties.minOfOrNull { it.date } ?: return LocalDate.MIN..LocalDate.MIN
-            val latestDate = foundDuties.maxOfOrNull { it.date } ?: return LocalDate.MIN..LocalDate.MIN
+        fun calculatePeriodFromDuties(duties: Collection<ParsedDuty>): ClosedRange<LocalDate> {
+            val earliestDate = duties.minOfOrNull { it.date } ?: return LocalDate.MIN..LocalDate.MIN
+            val latestDate = duties.maxOfOrNull { it.date } ?: return LocalDate.MIN..LocalDate.MIN
             return earliestDate..latestDate
         }
 
