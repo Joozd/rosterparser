@@ -1,6 +1,7 @@
 package nl.joozd.rosterparser.parsers.factories
 
 import nl.joozd.rosterparser.parsers.CSVParser
+import nl.joozd.rosterparser.services.readLines
 import java.io.InputStream
 
 internal object CSVParserFactory {
@@ -12,7 +13,7 @@ internal object CSVParserFactory {
      * @return a CSVParser object, or null if no suitable creator can be found.
      */
     fun getCsvParser(inputStream: InputStream): CSVParser? {
-        val lines = inputStream.bufferedReader().readLines() // closing the stream is responsibility of whoever created it
+        val lines = readLines(inputStream) // closing the stream is responsibility of whoever created it
         return ParsersRegistry.csvParsers.firstNotNullOfOrNull { creator ->
             creator.createIfAble(lines)
         }

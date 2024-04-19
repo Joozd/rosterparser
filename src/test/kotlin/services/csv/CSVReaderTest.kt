@@ -134,5 +134,14 @@ class CSVReaderTest {
         assertEquals(listOf("John Doe", "30", "New York"), rows[1])
     }
 
+    @Test
+    fun `test CSV with 1 long line with a break`(){
+        val csvContent = "2009-12-30\tKL1203\tSVG\tAMS\tMullers, Beer\tSelf\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t395.53\t\t\t0\t0\t0\t\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t\t\t\t\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t\t\t\t\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t\t\t\t\t\t\t\t\t\t\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t\t\t0\t\t\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t\"times to be filled in from monthly overview!\n" +
+                "Line Check\"\t\t\t0\t0\t0\t0\t0\t0\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tE190\tEMBRAER (Brazil)\tEMB-190/195\tJet\tAirplane\tMulti-Engine Land\t\t\t\t\t\t\t\t\t\t\t\t0\t0\n"
+        val reader = CSVReader(csvContent, '\t')
+        val rows = reader.generateRowLists()
+        assertEquals(1, rows.size)
+    }
+
 
 }

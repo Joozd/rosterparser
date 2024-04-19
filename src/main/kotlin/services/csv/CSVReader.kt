@@ -21,6 +21,17 @@ class CSVReader(
     private val quote: Char = '\"',
     private val nullString: String = ""
 ) {
+    /**
+     * @see CSVReader
+     * Allows CSV to be built from a list of lines (they are provided that way to parsers)
+     */
+    constructor(csvContent: List<String>,
+                divider: Char,
+                hasHeaders: Boolean = true,
+                headers: List<String>? = null,
+                quote: Char = '\"',
+                nullString: String = ""
+        ): this (csvContent.joinToString("\n"), divider, hasHeaders, headers, quote, nullString)
     // same as csvContent but with guaranteed "\n" as line break,
     private val _csvContent = csvContent.replace("\r\n", "\n")
 
@@ -37,6 +48,10 @@ class CSVReader(
         val keys = if(hasHeaders) recordsIterator.next().toList() else headers ?: throw IllegalStateException("Headers are set null and hasHeaders is false so cannot generate Row maps")
         recordsIterator.forEachRemaining {
             add(keys.zip(it).toMap())
+            if(it.size() != keys.size) {
+                println("WOWOWOWOW wrong line length!")
+                println(last().values.last().toByteArray().toList())
+            }
         }
     }
 

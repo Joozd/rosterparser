@@ -3,6 +3,7 @@ package nl.joozd.rosterparser.parsers.csv
 import nl.joozd.rosterparser.*
 import nl.joozd.rosterparser.parsers.CSVParser
 import nl.joozd.rosterparser.parsers.factories.CSVParserConstructor
+import nl.joozd.rosterparser.services.csv.CSVReader
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneOffset
@@ -27,12 +28,8 @@ class MccPilotLogParser(private val lines: List<String>) : CSVParser() {
         flightsArePlanned = false
         timeZone = ZoneOffset.UTC
         // period is left at default (auto-set by Builder)
-
-
-        val keys = lines.firstOrNull()?.split('\t') ?: emptyList()
-        lines.drop(1).forEach { line ->
+        CSVReader(lines, '\t').generateRowMaps().forEach { flightMap ->
             try {
-                val flightMap = keys.zip(line.split("\t")).toMap()
                 addDuty(
                     if (flightMap[IS_SIM]?.toInt() == 1)
                         flightMapToSim(flightMap)
@@ -40,9 +37,10 @@ class MccPilotLogParser(private val lines: List<String>) : CSVParser() {
                         flightMapToFlight(flightMap)
                 )
             } catch (e: Exception) {
-                throw ParsingException("Cannot parse line $line", e)
+                throw ParsingException("Cannot parse line $flightMap", e)
             }
         }
+
     }
 
     private fun flightMapToSim(flightMap: Map<String, String>): ParsedSimulatorDuty {
