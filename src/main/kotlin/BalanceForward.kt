@@ -7,7 +7,7 @@ import kotlin.time.Duration
  * Represents a Balance Forward entry in a logbook, typically used to carry forward totals from previous log entries.
  * This class aggregates previous flying experiences to be included in new log calculations.
  *
- * @property date The date of this session, as a LocalDate. Can be in any timezone, depending on the provided roster.
+ * @property date The date of this Balance Forward entry, as a LocalDate. Can be in any timezone, depending on the provided roster.
  * @property totalTime The total time logged in this balance forward. Optional, defaults to null.
  * @property picTime The time flown as Pilot in Command (PIC). Optional, defaults to null.
  * @property multiPilotTime The duration of the flight that occurred during Multi Pilot operations. Optional, defaults to null.
@@ -23,6 +23,7 @@ import kotlin.time.Duration
  * @property numberOfLandingsByDay The number of landings performed during daylight. Optional, defaults to null.
  * @property numberOfLandingsByNight The number of landings performed during nighttime. Optional, defaults to null.
  * @property numberOfAutolands The number of automatic landings performed. This is typically used for certain types of aircraft or under specific operating conditions. Optional, defaults to null.
+ * @property aircraftType The type of aircraft used for the flights covered by this Balance Forward. Optional, defaults to null.
  * @property remarks Any additional remarks related to the accumulated experiences or specifics not captured elsewhere in the record. Optional, defaults to null.
  */
 data class BalanceForward(
@@ -42,5 +43,6 @@ data class BalanceForward(
     val numberOfLandingsByDay: Int? = null,
     val numberOfLandingsByNight: Int? = null,
     val numberOfAutolands: Int? = null,
+    val aircraftType: String? = null,
     val remarks: String? = null,
 ): ParsedDuty
