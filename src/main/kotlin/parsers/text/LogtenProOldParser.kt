@@ -60,12 +60,31 @@ class LogtenProOldParser(private val text: String) : TextParser() {
     }
 
     private fun parseDuty(duty: Map<String, String>): ParsedDuty {
-        val isSim = (duty.getDurationOrNull(SIM_TIME_KEY) ?: 0.minutes) != 0.minutes
-        if (isSim) return parseSimDuty(duty)
+        val isBalanceForward = seemsToBeBalanceForward(duty)
+        if (isBalanceForward) return parseBalanceForward(duty)
 
-        val isBalanceForward = duty[ORIG_KEY] == null
-        return if (isBalanceForward) parseBalanceForward(duty)
+
+        val isSim = (duty.getDurationOrNull(SIM_TIME_KEY) ?: 0.minutes) != 0.minutes
+        return if (isSim) return parseSimDuty(duty)
+
         else parseFlightDuty(duty)
+    }
+
+    /**
+     * true is this seems to be a Balance Forward record. A bit hard to see, so we'll have to do some guessing.
+     */
+    private fun seemsToBeBalanceForward(duty: Map<String, String>): Boolean{
+        val remarks = duty[REMARKS_KEY] ?: ""
+        if (BALANCE_FORWARD_REMARKS.any { it in remarks.uppercase()}) return true // if user marked it as such in remarks
+        val orig = duty[ORIG_KEY]
+        val dest = duty[DEST_KEY]
+        if (BALANCE_FORWARD_ORIGIN_CANDIDATES.any { it in (orig ?: "")}
+            && BALANCE_FORWARD_DESTINATION_CANDIDATES.any { it in (dest ?: "")}
+            ) return true // if user marked it as such in origin and destination
+        if (duty[ORIG_KEY] == null && (duty.getDurationOrNull(SIM_TIME_KEY) ?: 0.minutes) == 0.minutes)
+            return true // not a sim duty and no origin filled out
+
+        return false // in other cases, not a balance forward.
     }
 
     private fun parseBalanceForward(balanceForwardDuty: Map<String, String>): BalanceForward{
@@ -155,10 +174,13 @@ class LogtenProOldParser(private val text: String) : TextParser() {
             val origin = this[ORIG_KEY] ?: "" // throw ParsingException("Cannot get departure airport ($ORIG_KEY) from $flightDuty")
             val destination = this[DEST_KEY] ?: "" // throw ParsingException("Cannot get departure airport ($DEST_KEY) from $flightDuty")
             val timeOut =getTimeOrNull(DEPARTURE_TIME_KEY, date) ?: date.atStartOfDay() // throw ParsingException("Cannot get departure time ($DEPARTURE_TIME_KEY) from $this")
-            val timeIn = getTimeOrNull(ARRIVAL_TIME_KEY, date) ?: date.atStartOfDay() // throw ParsingException("Cannot get arrival time ($ARRIVAL_TIME_KEY) from $this")
+            val timeIn = (getTimeOrNull(ARRIVAL_TIME_KEY, date) ?: date.atStartOfDay()).let{
+                if (it < timeOut) it.plusDays(1) else it
+            } // throw ParsingException("Cannot get arrival time ($ARRIVAL_TIME_KEY) from $this")
             val correctedTotalTime = getDurationOrNull(TOTAL_TIME_KEY)
             val nightTime = getDurationOrNull(NIGHT_TIME_KEY)
             val ifrTime = getDurationOrNull(ACTUAL_IFR_TIME_KEY)
+            val multiPilotTime = getDurationOrNull(MULTI_PILOT_TIME_KEY)
             val aircraft = get(AIRCRAFT_TYPE_KEY)
             val registration = get(AIRCRAFT_REG_KEY)
             val namePic = get(NAME_PIC)?.let { Person.fromString(it)}
@@ -172,12 +194,12 @@ class LogtenProOldParser(private val text: String) : TextParser() {
             val remarks = get(REMARKS_KEY)
 
             // I am assuming boolean values are always 0 or 1. Any nonzero values (including negative) will be "true".
-            val isPic = get(PIC_KEY)?.toInt() != 0
-            val isPicus = get(PICUS_KEY)?.toInt() != 0
-            val isCopilot = get(COPILOT_KEY)?.toInt() != 0
-            val isDual = get(DUAL_RECEIVED_TIME_KEY)?.toInt() != 0
-            val isInstructor = get(INSTRUCTOR_KEY)?.toInt() != 0
-            val isPF = get(PF_KEY)?.toInt() != 0
+            val isPic = get(PIC_KEY)?.toInt()?.let { it != 0 }
+            val isPicus = get(PICUS_KEY)?.toInt()?.let { it != 0 }
+            val isCopilot = get(COPILOT_KEY)?.toInt()?.let { it != 0 }
+            val isDual = get(DUAL_RECEIVED_TIME_KEY)?.toInt()?.let { it != 0 }
+            val isInstructor = get(INSTRUCTOR_KEY)?.toInt()?.let { it != 0 }
+            val isPF = get(PF_KEY)?.toInt()?.let { it != 0 }
 
             return ParsedFlight(
                 date = date,
@@ -188,6 +210,7 @@ class LogtenProOldParser(private val text: String) : TextParser() {
                 overriddenTotalTime = correctedTotalTime,
                 nightTime = nightTime,
                 ifrTime = ifrTime,
+                multiPilotTime = multiPilotTime,
                 aircraftType = aircraft,
                 aircraftRegistration = registration,
                 pilotInCommand = namePic,
@@ -296,15 +319,15 @@ class LogtenProOldParser(private val text: String) : TextParser() {
         private const val DEST_KEY = "flight_to"
         private const val NAME_PIC = "flight_selectedCrewPIC"
         private const val TOTAL_TIME_KEY = "flight_totalTime"
-        private const val PIC_TIME_KEY = " flight_pic"
-        private const val XC_TIME_KEY = " flight_crossCountry"
+        private const val PIC_TIME_KEY = "flight_pic"
+        private const val XC_TIME_KEY = "flight_crossCountry"
         private const val NIGHT_TIME_KEY = "flight_night"
         private const val ACTUAL_IFR_TIME_KEY = "flight_actualInstrument"
         private const val SIMULATED_IFR_TIME_KEY = " flight_simulatedInstrument"
         private const val DUAL_RECEIVED_TIME_KEY = "flight_dualReceived"
         private const val DUAL_GIVEN_TIME_KEY = " flight_dualGiven"
         private const val SIM_TIME_KEY = "flight_simulator"
-        private const val MULTI_PILOT_TIME_KEY = " flight_multiPilot"
+        private const val MULTI_PILOT_TIME_KEY = "flight_multiPilot"
         private const val AIRCRAFT_TYPE_KEY = "aircraftType_type"
         private const val AIRCRAFT_REG_KEY = "aircraft_aircraftID"
         private const val DAY_LANDINGS_KEY = "flight_dayLandings"
@@ -354,6 +377,22 @@ class LogtenProOldParser(private val text: String) : TextParser() {
             INSTRUCTOR_KEY,
             PF_KEY
         )
+
+        private val BALANCE_FORWARD_REMARKS = listOf(
+            "BALANCE FORWARD",
+            "TOTALS FORWARD",
+            "FROM PREVIOUS LOGBOOK"
+        )
+
+        private val BALANCE_FORWARD_ORIGIN_CANDIDATES = listOf(
+            "BALANCE",
+            "TOTALS"
+        )
+
+        private val BALANCE_FORWARD_DESTINATION_CANDIDATES = listOf(
+            "FORWARD"
+        )
+
 
         private val otherCrewKeys =
             "flight_selectedCrewSIC\t flight_selectedCrewRelief\t flight_selectedCrewRelief2\t flight_selectedCrewRelief3\t flight_selectedCrewRelief4\t flight_selectedCrewFlightEngineer\t flight_selectedCrewInstructor\t flight_selectedCrewStudent\t flight_selectedCrewObserver\t flight_selectedCrewObserver2\t flight_selectedCrewPurser\t flight_selectedCrewFlightAttendant\t flight_selectedCrewFlightAttendant2\t flight_selectedCrewFlightAttendant3\t flight_selectedCrewFlightAttendant4\t flight_selectedCrewCommander\t flight_selectedCrewCustom1\t flight_selectedCrewCustom2\t flight_selectedCrewCustom3\t flight_selectedCrewCustom4\t flight_selectedCrewCustom5".split(
