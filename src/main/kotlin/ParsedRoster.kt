@@ -35,6 +35,11 @@ data class ParsedRoster(
     val simulatorDuties: List<ParsedSimulatorDuty> get() = parsedDuties.filterIsInstance<ParsedSimulatorDuty>()
 
     /**
+     * Only the BalanceForward items in [parsedDuties]
+     */
+    val balancesForward: List<BalanceForward> get() = parsedDuties.filterIsInstance<BalanceForward>()
+
+    /**
      * A builder for constructing instances of [ParsedRoster], providing a fluent interface
      * for configuring the roster, including setting the timezone, adding duties, and defining
      * the roster period. The roster period defaults to spanning from the start of the first duty
