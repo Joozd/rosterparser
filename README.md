@@ -21,7 +21,7 @@ repositories {
     }
 }
 dependencies {
-    implementation("nl.joozd:practicelibrary:0.0.2")
+    implementation("nl.joozd.rosterparser:rosterparser:0.0.1")
 }
 ```
 
@@ -40,6 +40,18 @@ val parsedRoster = csvTestFile.inputStream().use {
 ```
 
 Replace `"path/to/your/roster.csv"` with the actual path to your roster file and `Format.CSV` with the appropriate format of your roster file.
+
+## Supported roster formats:
+Formats with an asterisk* are only tested on a single, old, file. Feel free to provide more files if they do not seem to work.
+- Joozdlog Backup CSV
+- MCC Pilot Log CSV export*
+- Logten Pro TXT export*
+- KLM ICA Monthly overview
+- KLM Cityhopper monthly overview
+- KLM Cityhopper duty roster
+- KLM Cityhopper Briefing Sheet
+
+If you have additional formats you would like to be supported, feel free to send them to me or to write your own parser and make a pull request.
 
 ## License: AGPL
 
@@ -60,6 +72,8 @@ We welcome contributions to RosterParser! If you're interested in helping:
 2. Create a new branch for your feature or fix.
 3. Commit your changes with clear, descriptive messages.
 4. Push your branch and submit a pull request.
+
+Please provide well documented and readable code.
 
 Please note that by contributing to this project, you agree to have your work distributed under the same AGPL license.
 
