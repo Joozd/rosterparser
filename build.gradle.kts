@@ -1,13 +1,18 @@
 import java.net.URL
 
+val versionName = "0.1-beta"
+val groupID = "nl.joozd.rosterparser"
+
+
+
 plugins {
     kotlin("jvm") version "1.9.23"
     id("org.jetbrains.dokka") version "1.9.20"
     id("maven-publish")
 }
 
-group = "nl.joozd.rosterparser"
-version = "0.0.1-INITIAL_BUILD"
+group = groupID
+version = versionName
 
 repositories {
     mavenCentral()
@@ -43,9 +48,9 @@ publishing {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
 
-            groupId = "nl.joozd.rosterparser"
+            groupId = groupID
             artifactId = "rosterparser"
-            version = "0.0.1"
+            version = versionName
 
             artifact(sourceJar.get()) // Attach the source JAR
 
