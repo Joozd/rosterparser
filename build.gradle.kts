@@ -15,7 +15,7 @@ repositories {
 
 dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test")
-    implementation ("com.itextpdf:itextg:5.5.10") // iText PDF for PDF parsing. This requires AGPL License.
+    implementation("com.itextpdf:itextg:5.5.10") // iText PDF for PDF parsing. This requires AGPL License. Using EOL version because that works on android.
     implementation("org.apache.commons:commons-csv:1.10.0") // Apache Commons CSV parsing
     implementation("com.ibm.icu:icu4j:75.1") // ICU4J, for detecting text encoding
     // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1-Beta") // Kotlin Coroutines, not used at the moment
@@ -93,9 +93,10 @@ tasks.dokkaHtml {
             sourceLink {
                 localDirectory.set(file("src/main/kotlin"))
                 remoteUrl.set(
-                    URL("https://github.com/Joozd/rosterparser/" +
-                        "tree/master/src/main/kotlin"
-                )
+                    URL(
+                        "https://github.com/Joozd/rosterparser/" +
+                                "tree/master/src/main/kotlin"
+                    )
                 )
                 remoteLineSuffix.set("#L")
             }
