@@ -19,7 +19,7 @@ fun readText(inputStream: InputStream): String =
     }
         .detect()
         .string  // Use the best match charset detected to convert the input bytes to string.
-        .let{ if (it.startsWith("\uFEFF")) it.substring(1) else it } // strip BOM if present. Might not work for all files?
+        .let{ if (it.startsWith("\uFEFF")) it.substring(1) else it } // strip BOM if present. Might not work for all files? Might need a function that checks string for BOM and removes it if needed?
 
 
 /**
