@@ -21,7 +21,7 @@ repositories {
     }
 }
 dependencies {
-    implementation("nl.joozd.rosterparser:rosterparser:0.0.1")
+    implementation("nl.joozd.rosterparser:rosterparser:0.1-beta")
 }
 ```
 
