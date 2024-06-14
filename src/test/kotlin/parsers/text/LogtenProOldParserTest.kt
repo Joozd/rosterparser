@@ -22,7 +22,7 @@ class LogtenProOldParserTest: TextParserSubclassTest() {
     override val expectedParserType = LogtenProOldParser::class.java
 
     @Test
-    fun testJoozdlogV5Parser() {
+    fun testLogtenProOldParser() {
         assertNotNull(parser, "Parser is null, cannot be constructed from test data")
         assertIs<LogtenProOldParser>(parser, "Parser is not an instance of JoozdlogV5Parser")
 
