@@ -3,6 +3,7 @@ package parsers.text
 import nl.joozd.rosterparser.ParsedFlight
 import nl.joozd.rosterparser.ParsedSimulatorDuty
 import nl.joozd.rosterparser.Person
+import nl.joozd.rosterparser.parsers.TextParser
 import nl.joozd.rosterparser.parsers.factories.TextParserConstructor
 import nl.joozd.rosterparser.parsers.text.LogtenProOldParser
 import org.junit.jupiter.api.Assertions.assertNotNull
@@ -19,6 +20,7 @@ import kotlin.time.Duration.Companion.minutes
 class LogtenProOldParserTest: TextParserSubclassTest() {
     override val testResourceName: String = "logten_pro_old.txt"
     override val parserConstructor: TextParserConstructor = LogtenProOldParser
+    override val expectedParserType = LogtenProOldParser::class.java
 
     @Test
     fun testJoozdlogV5Parser() {

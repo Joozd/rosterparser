@@ -1,6 +1,7 @@
 package nl.joozd.rosterparser.parsers
 
 import nl.joozd.rosterparser.RosterParser
+import nl.joozd.rosterparser.parsers.factories.TextParserFactory
 import java.io.InputStream
 
 /**
@@ -17,8 +18,7 @@ abstract class TextParser: RosterParser() {
          *
          * Contains blocking IO
          */
-        internal fun ofInputStream(inputStream: InputStream): TextParser? {
-            TODO()
-        }
+        internal fun ofInputStream(inputStream: InputStream): TextParser?=
+            TextParserFactory.getTextParser(inputStream)
     }
 }
