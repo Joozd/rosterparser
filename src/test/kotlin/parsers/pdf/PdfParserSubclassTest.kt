@@ -4,6 +4,7 @@ import com.itextpdf.text.pdf.PdfReader
 import com.itextpdf.text.pdf.parser.PdfTextExtractor
 import com.itextpdf.text.pdf.parser.SimpleTextExtractionStrategy
 import nl.joozd.rosterparser.RosterParser
+import nl.joozd.rosterparser.parsers.PDFParser
 import nl.joozd.rosterparser.parsers.factories.CSVParserConstructor
 import nl.joozd.rosterparser.parsers.factories.PDFParserConstructor
 import org.junit.jupiter.api.Assertions
@@ -19,19 +20,19 @@ import kotlin.test.assertIs
  * @property testResourceName Name of the resource in test/resources that holds the test data
  * @property parserConstructor the [CSVParserConstructor] object that constructs the parser to be tested
  */
-abstract class PdfParserSubclassTest: ParserSubclassTest() {
+abstract class PdfParserSubclassTest : ParserSubclassTest() {
     abstract val parserConstructor: PDFParserConstructor
+    abstract val expectedParserType: Class<out PDFParser>
 
     protected val parser by lazy { createParser() }
-    private fun createParser() = File(this::class.java.classLoader.getResource(testResourceName)!!.toURI())
-        .inputStream()
-        .use{
-            val reader = PdfReader(it)
-            val lines = (1..reader.numberOfPages).map { page ->
-                PdfTextExtractor.getTextFromPage(reader, page, SimpleTextExtractionStrategy()).lines()
-            }.flatten()
-            parserConstructor.createIfAble(lines, reader)
-        }
+    private fun createParser() = getResourceInputStream().use {
+        val reader = PdfReader(it)
+        val lines = (1..reader.numberOfPages).map { page ->
+            PdfTextExtractor.getTextFromPage(reader, page, SimpleTextExtractionStrategy()).lines()
+        }.flatten()
+        parserConstructor.createIfAble(lines, reader)
+    }
+
 
     @Test
     fun testConstructsCorrectly() {
@@ -47,5 +48,8 @@ abstract class PdfParserSubclassTest: ParserSubclassTest() {
 
         // Additional type check if needed, replace ExpectedParserType with the expected type
         assertIs<RosterParser>(parser, "Parser is not of the expected type")
+
+        val constructedParser = getResourceInputStream().use { PDFParser.ofInputStream(it) }!!
+        assert(expectedParserType.isInstance(constructedParser)) { "Expected parser of type ${expectedParserType.simpleName} but got ${constructedParser::class.simpleName}" }
     }
 }

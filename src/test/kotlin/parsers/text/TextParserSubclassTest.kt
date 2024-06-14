@@ -7,7 +7,6 @@ import nl.joozd.rosterparser.services.text.readText
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import parsers.ParserSubclassTest
-import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertIs
 
@@ -22,8 +21,9 @@ abstract class TextParserSubclassTest: ParserSubclassTest() {
     abstract val parserConstructor: TextParserConstructor
     abstract val expectedParserType: Class<out TextParser>
 
+
     protected val parser by lazy { createParser() }
-    private fun createParser() = getInputStream()
+    private fun createParser() = getResourceInputStream()
         .use{
             parserConstructor.createIfAble(readText(it))
         }
@@ -39,10 +39,7 @@ abstract class TextParserSubclassTest: ParserSubclassTest() {
         // Additional type check if needed, replace ExpectedParserType with the expected type
         assertIs<RosterParser>(parser, "Parser is not of the expected type")
 
-        val constructedParser = getInputStream().use { TextParser.ofInputStream(it) }!!
+        val constructedParser = getResourceInputStream().use { TextParser.ofInputStream(it) }!!
         assert(expectedParserType.isInstance(constructedParser)) { "Expected parser of type ${expectedParserType.simpleName} but got ${constructedParser::class.simpleName}"}
     }
-
-    private fun getInputStream() = File(this::class.java.classLoader.getResource(testResourceName)!!.toURI())
-        .inputStream()
 }

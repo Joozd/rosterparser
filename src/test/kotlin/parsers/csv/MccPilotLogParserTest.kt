@@ -13,6 +13,7 @@ import kotlin.test.assertIs
 class MccPilotLogParserTest: CsvParserSubclassTest() {
     override val testResourceName: String = "mccpilotlogtest.csv"
     override val parserConstructor: CSVParserConstructor = MccPilotLogParser
+    override val expectedParserType = MccPilotLogParser::class.java
 
     @Test
     fun testMccPilotLogParser() {

@@ -16,9 +16,10 @@ import kotlin.test.assertIs
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
-class KlmMonthlyParsersTest: PdfParserSubclassTest() {
+class KlmMonthlyParsersTest : PdfParserSubclassTest() {
     override val testResourceName: String = "klm_monthly.pdf"
     override val parserConstructor: PDFParserConstructor = KlmMonthlyParser
+    override val expectedParserType = KlmMonthlyParser::class.java
 
 
     @Test
@@ -43,9 +44,10 @@ class KlmMonthlyParsersTest: PdfParserSubclassTest() {
         assertEquals(correctAirportFormat, parsedRoster.airportFormat, "Airport Format does not match the expected")
     }
 
-    companion object{
+    companion object {
         private val correctParsedFlight =
-            ParsedFlight(date = LocalDate.parse("2024-01-04"),
+            ParsedFlight(
+                date = LocalDate.parse("2024-01-04"),
                 flightNumber = "KL643", takeoffAirport = "AMS",
                 landingAirport = "JFK",
                 departureTime = LocalDateTime.parse("2024-01-04T15:18"),
@@ -61,7 +63,7 @@ class KlmMonthlyParsersTest: PdfParserSubclassTest() {
             remarks = "OPC/LPC"
         )
 
-        private val correctTimeRange = LocalDate.of(2024,1,1)..LocalDate.of(2024, 1, 31)
+        private val correctTimeRange = LocalDate.of(2024, 1, 1)..LocalDate.of(2024, 1, 31)
         val correctAirportFormat = AirportFormat.IATA
     }
 }

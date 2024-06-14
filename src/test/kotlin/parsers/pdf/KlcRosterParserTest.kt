@@ -12,6 +12,7 @@ import kotlin.test.*
 class KlcRosterParserTest : PdfParserSubclassTest() {
     override val testResourceName: String = "klc_roster.pdf" // 61 flights!
     override val parserConstructor: PDFParserConstructor = KlcRosterParser
+    override val expectedParserType = KlcRosterParser::class.java
 
 
     @Test

@@ -1,7 +1,9 @@
 package parsers.csv
 
 import nl.joozd.rosterparser.RosterParser
+import nl.joozd.rosterparser.parsers.CSVParser
 import nl.joozd.rosterparser.parsers.factories.CSVParserConstructor
+import nl.joozd.rosterparser.services.text.readLines
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import parsers.ParserSubclassTest
@@ -18,12 +20,13 @@ import kotlin.test.assertIs
  */
 abstract class CsvParserSubclassTest: ParserSubclassTest() {
     abstract val parserConstructor: CSVParserConstructor
+    abstract val expectedParserType: Class<out CSVParser>
 
     protected val parser by lazy { createParser() }
     private fun createParser() = File(this::class.java.classLoader.getResource(testResourceName)!!.toURI())
         .inputStream()
         .use{
-            parserConstructor.createIfAble(it.bufferedReader().readLines())
+            parserConstructor.createIfAble(readLines(it))
         }
 
     @Test
@@ -36,5 +39,8 @@ abstract class CsvParserSubclassTest: ParserSubclassTest() {
 
         // Additional type check if needed, replace ExpectedParserType with the expected type
         assertIs<RosterParser>(parser, "Parser is not of the expected type")
+
+        val constructedParser = getResourceInputStream().use { CSVParser.ofInputStream(it) }!!
+        assert(expectedParserType.isInstance(constructedParser)) { "Expected parser of type ${expectedParserType.simpleName} but got ${constructedParser::class.simpleName}"}
     }
 }

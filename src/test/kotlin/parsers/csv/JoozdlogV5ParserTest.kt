@@ -17,9 +17,10 @@ import kotlin.test.assertIs
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
-class JoozdlogV5ParserTest: CsvParserSubclassTest() {
+class JoozdlogV5ParserTest : CsvParserSubclassTest() {
     override val testResourceName: String = "joozdlogv5test.csv"
     override val parserConstructor: CSVParserConstructor = JoozdlogV5Parser
+    override val expectedParserType = JoozdlogV5Parser::class.java
 
     @Test
     fun testJoozdlogV5Parser() {
@@ -41,7 +42,7 @@ class JoozdlogV5ParserTest: CsvParserSubclassTest() {
         assertEquals(correctAirportFormat, parsedRoster.airportFormat, "Airport Format does not match the expected")
     }
 
-    companion object{
+    companion object {
         private val correctParsedFlight = ParsedFlight(
             date = LocalDate.parse("2024-03-05"),
             flightNumber = "KL807",
@@ -66,7 +67,7 @@ class JoozdlogV5ParserTest: CsvParserSubclassTest() {
             augmentedCrewTimeForTakeoffLanding = 45.minutes,
             augmentedCrewFixedRestTime = null,
             pilotInCommand = Person.fromString("PIC Name"),
-            personsNotPIC = listOf("other name 1", "SELF", "Yet Another Name").map { Person.fromString(it)},
+            personsNotPIC = listOf("other name 1", "SELF", "Yet Another Name").map { Person.fromString(it) },
             isPF = true,
             isPICDuty = false,
             isPICUSDuty = false,
@@ -82,7 +83,7 @@ class JoozdlogV5ParserTest: CsvParserSubclassTest() {
             duration = 3.hours + 30.minutes,
             simulatorType = "B772",
             remarks = "OPC/LPC",
-            persons = listOf("Instructors name", "Other Trainees Name").map { Person.fromString(it)},
+            persons = listOf("Instructors name", "Other Trainees Name").map { Person.fromString(it) },
             instructionGiven = false
         )
 

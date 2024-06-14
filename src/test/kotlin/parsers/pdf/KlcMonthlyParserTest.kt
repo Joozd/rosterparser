@@ -13,9 +13,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 
-class KlcMonthlyParsersTest: PdfParserSubclassTest() {
+class KlcMonthlyParsersTest : PdfParserSubclassTest() {
     override val testResourceName: String = "klc_monthly.pdf" // 61 flights!
     override val parserConstructor: PDFParserConstructor = KlcMonthlyParser
+    override val expectedParserType = KlcMonthlyParser::class.java
 
 
     @Test
@@ -40,7 +41,7 @@ class KlcMonthlyParsersTest: PdfParserSubclassTest() {
         assertEquals(correctAirportFormat, parsedRoster.airportFormat, "Airport Format does not match the expected")
     }
 
-    companion object{
+    companion object {
         private val correctParsedFlight =
             ParsedFlight(
                 date = LocalDate.parse("2018-05-01"),
@@ -59,7 +60,7 @@ class KlcMonthlyParsersTest: PdfParserSubclassTest() {
 //            remarks = "OPC/LPC"
 //        )
 
-        private val correctTimeRange = LocalDate.of(2018,5,1)..LocalDate.of(2018, 5, 31)
+        private val correctTimeRange = LocalDate.of(2018, 5, 1)..LocalDate.of(2018, 5, 31)
         val correctAirportFormat = AirportFormat.IATA
     }
 }

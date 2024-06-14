@@ -3,7 +3,6 @@ package parsers.text
 import nl.joozd.rosterparser.ParsedFlight
 import nl.joozd.rosterparser.ParsedSimulatorDuty
 import nl.joozd.rosterparser.Person
-import nl.joozd.rosterparser.parsers.TextParser
 import nl.joozd.rosterparser.parsers.factories.TextParserConstructor
 import nl.joozd.rosterparser.parsers.text.LogtenProOldParser
 import org.junit.jupiter.api.Assertions.assertNotNull

@@ -9,11 +9,15 @@ import org.junit.jupiter.api.Assertions
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import kotlin.test.*
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 class KlcBriefingSheetParserTest: PdfParserSubclassTest() {
     override val testResourceName: String = "klcbriefingsheettest.pdf"
     override val parserConstructor: PDFParserConstructor = KlcBriefingSheetParser
+    override val expectedParserType = KlcBriefingSheetParser::class.java
 
 
     @Test
