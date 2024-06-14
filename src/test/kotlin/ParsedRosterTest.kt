@@ -1,12 +1,12 @@
-import nl.joozd.rosterparser.ParsedDuty
 import nl.joozd.rosterparser.ParsedRoster
+import testutils.makeDummyFlightDuty
+import testutils.makeDummySimDuty
 import java.time.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ParsedRosterTest {
-    data class DummyFlightDuty(override val date: LocalDate) : ParsedDuty
-    data class DummySimulatorDuty(override val date: LocalDate) : ParsedDuty
+
 
     /**
      * Test that the period calculation defaults to LocalDate.MIN..LocalDate.MIN
@@ -30,8 +30,8 @@ class ParsedRosterTest {
     fun `test period calculation with duties spanning multiple days`() {
         val parsedRoster =  ParsedRoster.build {
             // Adding two duties with different dates to span multiple days
-            addDuty(DummyFlightDuty(LocalDate.of(2022, 3, 5)))
-            addDuty(DummySimulatorDuty(LocalDate.of(2022, 3, 7)))
+            addDuty(makeDummyFlightDuty(LocalDate.of(2022, 3, 5)))
+            addDuty(makeDummySimDuty(LocalDate.of(2022, 3, 7)))
         }
         val expectedPeriod = LocalDate.of(2022, 3, 5)..LocalDate.of(2022, 3, 7)
         assertEquals(expectedPeriod, parsedRoster.coveredDates, "Period should span from the first to the last duty date")
@@ -45,8 +45,8 @@ class ParsedRosterTest {
         val fixedPeriod = LocalDate.of(2022, 3, 5)..LocalDate.of(2022, 3, 7)
         val parsedRoster =  ParsedRoster.build {
             // Adding two duties with different dates to span multiple days
-            addDuty(DummyFlightDuty(LocalDate.of(2022, 3, 5)))
-            addDuty(DummySimulatorDuty(LocalDate.of(2022, 3, 7)))
+            addDuty(makeDummyFlightDuty(LocalDate.of(2022, 3, 5)))
+            addDuty(makeDummySimDuty(LocalDate.of(2022, 3, 7)))
             rosterPeriod = fixedPeriod
         }
 
@@ -62,8 +62,8 @@ class ParsedRosterTest {
     fun `test period calculation with duties on a single day`() {
         val parsedRoster =  ParsedRoster.build {
             // Adding two duties on the same day
-            addDuty(DummyFlightDuty(LocalDate.of(2022, 4, 1)))
-            addDuty(DummySimulatorDuty(LocalDate.of(2022, 4, 1)))
+            addDuty(makeDummyFlightDuty(LocalDate.of(2022, 4, 1)))
+            addDuty(makeDummySimDuty(LocalDate.of(2022, 4, 1)))
         }
         val expectedPeriod = LocalDate.of(2022, 4, 1)..LocalDate.of(2022, 4, 1)
         assertEquals(expectedPeriod, parsedRoster.coveredDates, "Period should span from the first to the last duty date")
