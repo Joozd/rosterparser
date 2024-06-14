@@ -156,9 +156,7 @@ class KlcRosterParser(private val lines: List<String>) : PDFParser() {
         override fun createIfAble(pdfLines: List<String>, pdfReader: PdfReader): KlcRosterParser? =
             if (LINE_TO_LOOK_AT in pdfLines.indices && pdfLines[LINE_TO_LOOK_AT].startsWith(TEXT_TO_SEARCH_FOR))
                 KlcRosterParser(pdfLines)
-            else null.also{
-                println("Could not make roster from ${pdfLines.joinToString("\n")}")
-            }
+            else null
 
         private const val DAY_REGEX_STRING =
             """\d\d[A-Z][a-z]{2}\d\d""" // 2 digits (day), Jan/Feb/Mar etc, 2 digits (year)
