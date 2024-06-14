@@ -1,4 +1,4 @@
-package nl.joozd.rosterparser.services
+package nl.joozd.rosterparser.services.text
 
 
 import com.ibm.icu.text.CharsetDetector

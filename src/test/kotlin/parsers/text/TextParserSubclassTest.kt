@@ -2,7 +2,7 @@ package parsers.text
 
 import nl.joozd.rosterparser.RosterParser
 import nl.joozd.rosterparser.parsers.factories.TextParserConstructor
-import nl.joozd.rosterparser.services.readText
+import nl.joozd.rosterparser.services.text.readText
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertNull
 import parsers.ParserSubclassTest

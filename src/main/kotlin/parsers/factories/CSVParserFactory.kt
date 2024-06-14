@@ -1,7 +1,7 @@
 package nl.joozd.rosterparser.parsers.factories
 
 import nl.joozd.rosterparser.parsers.CSVParser
-import nl.joozd.rosterparser.services.readLines
+import nl.joozd.rosterparser.services.text.readLines
 import java.io.InputStream
 
 internal object CSVParserFactory {
