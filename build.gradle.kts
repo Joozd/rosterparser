@@ -1,12 +1,12 @@
 import java.net.URL
 
-val versionName = "0.1.1-beta"
+val versionName = "0.1.2-beta"
 val groupID = "nl.joozd.rosterparser"
 
 
 
 plugins {
-    kotlin("jvm") version "1.9.23"
+    kotlin("jvm") version "2.0.21"
     id("org.jetbrains.dokka") version "1.9.20"
     id("maven-publish")
 }
@@ -21,8 +21,8 @@ repositories {
 dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     implementation("com.itextpdf:itextg:5.5.10") // iText PDF for PDF parsing. This requires AGPL License. Using EOL version because that works on android.
-    implementation("org.apache.commons:commons-csv:1.10.0") // Apache Commons CSV parsing
-    implementation("com.ibm.icu:icu4j:75.1") // ICU4J, for detecting text encoding
+    implementation("org.apache.commons:commons-csv:1.12.0") // Apache Commons CSV parsing
+    implementation("com.ibm.icu:icu4j:76.1") // ICU4J, for detecting text encoding
     // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1-Beta") // Kotlin Coroutines, not used at the moment
 }
 
