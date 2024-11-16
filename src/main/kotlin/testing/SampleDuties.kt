@@ -224,10 +224,10 @@ object SampleDuties {
     )
 
     val flightDuties = listOf(
-        SampleDuties.picDayVfr,
-        SampleDuties.copilotNightIfr,
-        SampleDuties.picInstructor,
-        SampleDuties.nullsAndZeroes
+        picDayVfr,
+        copilotNightIfr,
+        picInstructor,
+        nullsAndZeroes
     )
 
     val simDuties = listOf(
