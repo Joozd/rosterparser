@@ -1,5 +1,5 @@
 
-# YourLibraryName
+# RosterParser
 
 RosterParser is a Kotlin (and/or Java) library designed to simplify the parsing of flight crew rosters from various formats, including CSV, PDF, and TXT, into Java objects. It aims to provide an easy-to-use interface for developers working with crew roster data, making the extraction of information seamless and efficient.
 
@@ -21,7 +21,7 @@ repositories {
     }
 }
 dependencies {
-    implementation("nl.joozd.rosterparser:rosterparser:0.1-beta")
+    implementation("nl.joozd.rosterparser:rosterparser:0.1.3-beta")
 }
 ```
 

@@ -19,7 +19,7 @@ class TestDataParserTest: TextParserSubclassTest() {
     @Test
     fun testLogtenProOldParser() {
         assertNotNull(parser, "Parser is null, cannot be constructed from test data")
-        assertIs<TestDataParser>(parser, "Parser is not an instance of JoozdlogV5Parser")
+        assertIs<TestDataParser>(parser, "Parser is not an instance of TestDataParser")
 
         val parsedRoster = parser!!.getRoster()
 

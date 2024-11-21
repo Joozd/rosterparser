@@ -1,6 +1,6 @@
 import java.net.URL
 
-val versionName = "0.1.2-beta"
+val versionName = "0.1.4-beta"
 val groupID = "nl.joozd.rosterparser"
 
 
