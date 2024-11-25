@@ -146,7 +146,7 @@ class KlmMonthlyParser(private val lines: List<String>) : PDFParser() {
                 isPICDuty = isCaptain
             )
         } catch (e: Exception){
-            throw ParsingException("Could not crete Parsedflight from $line", e)
+            throw ParsingException("Could not create Parsedflight from $line", e)
         }
     }
 
@@ -235,7 +235,7 @@ class KlmMonthlyParser(private val lines: List<String>) : PDFParser() {
         private const val AIRPORT =
             """\s[A-Z]{3}\s""" // 3 capital letters with whitespace before or after is always an airport.
 
-        private const val AIRPORT_WITH_TIME_OFFSET = """\s[A-Z]{3}\s+([+-]\d{1,2})\s""" // group is the time offset
+        private const val AIRPORT_WITH_TIME_OFFSET = """\s[A-Z]{3}\s+(?:[A-Z][+-]\s)?([+-]\d{1,2})\s""" // group is the time offset
 
         // sim identifiers are all regexes.
         // The check for a digit after 0 or more whitespaces (at the end) is to filter out instruction.

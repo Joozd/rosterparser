@@ -14,3 +14,6 @@ Beta version, mostly meant for internal testing. Can be used though. Should be m
 - 
 ### 0.1.4-beta
 - Added data to RosterParserSampleFile for easier testing
+- 
+### 0.1.5-beta
+- Fixed critical error in parsing requested flights in KLM Monthly overviews
