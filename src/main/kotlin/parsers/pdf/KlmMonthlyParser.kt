@@ -284,6 +284,6 @@ class KlmMonthlyParser(private val lines: List<String>) : PDFParser() {
             "BIQ",  // Inspected instructor
             "PQ",   // Unnamed session
         )
-        private val INSTRUCTION_REGEX = "\\s+(?:${INSTRUCTION_CODES.joinToString("|")})\\s+\\d".toRegex() // One or more whitespaces, any instruction code, followed by one or more whitespaces and then a digit.
+        private val INSTRUCTION_REGEX = "\\s+${INSTRUCTION_CODES.joinToString("|")}\\s+\\d".toRegex() // One or more whitespaces, any instruction code, followed by one or more whitespaces and then a digit.
     }
 }
