@@ -60,7 +60,8 @@ class KlmMonthlyParsersTest : PdfParserSubclassTest() {
             date = LocalDate.parse("2024-01-13"),
             duration = 3.hours + 30.minutes,
             simulatorType = "", // its actually B772 but the overview doesn't know that
-            remarks = "OPC/LPC"
+            remarks = "OPC/LPC",
+            instructionGiven = false
         )
 
         private val correctTimeRange = LocalDate.of(2024, 1, 1)..LocalDate.of(2024, 1, 31)

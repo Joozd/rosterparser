@@ -43,7 +43,15 @@ class KlmMonthlyParser(private val lines: List<String>) : PDFParser() {
         val fixedLines = fixLines(lines) // sometimes notes can break a line in multiple lines. this is fixed here.
 
         val flightLines = fixedLines.filter { it matches flightLineMatcher }
+//            .also{
+//                println("Flight lines:\n${it.joinToString("\n")}\n***\n")
+//            }
         val simLines = fixedLines.filter { simLineMatcher.containsMatchIn(it) }
+//            .also{
+//                println("Sim lines:\n${it.joinToString("\n")}\n***\n")
+//            }
+
+//        println("Unused lines:\n${fixedLines.filter { it !in (flightLines + simLines)}.joinToString("\n")}\n***\n")
 
         flightLines.forEach {line ->
             addDuty(flightFromLine(line, period, isCaptain))
@@ -164,17 +172,19 @@ class KlmMonthlyParser(private val lines: List<String>) : PDFParser() {
                 SIM_TQ_EXAM_MATCH.toRegex().containsMatchIn(line) -> "Skill Test"
                 SIM_787_RECURRENT_MATCH.toRegex().containsMatchIn(line) -> "787 Recurrent"
                 SIM_LOE_MATCH.toRegex().containsMatchIn(line) -> "LOE"
-                SIM_TR_MATCH.toRegex().containsMatchIn(line) -> "Type Recurrent"
+                SIM_TR_MATCH.toRegex().containsMatchIn(line) -> "Type Recurrent ${SIM_TR_MATCH.toRegex().find(line)?.groupValues?.last() ?: ""}".trim()
                 SIM_LPC_MATCH.toRegex().containsMatchIn(line) -> "OPC/LPC"
                 else -> ""
             }
             val type = if (SIM_787_RECURRENT_MATCH.toRegex().containsMatchIn(line)) "B789" else ""
+            val instructionGIven = checkIfInstructionGivenOnSim(line)
 
             return ParsedSimulatorDuty(
                 date = date,
                 duration = 3.hours + 30.minutes, // fixed duration, not present in overview
                 simulatorType = type,
-                remarks = description
+                remarks = description,
+                instructionGiven = instructionGIven
             )
         } catch (e: Exception){
             throw ParsingException("Unable to parse simulator duty from $line", e)
@@ -208,6 +218,13 @@ class KlmMonthlyParser(private val lines: List<String>) : PDFParser() {
         return dateTimeOut..dateTimeIn
     }
 
+    /**
+     * Check if this simulator duty is instruction
+     * Only use this for simulator lines.
+     */
+    private fun checkIfInstructionGivenOnSim(line: String)=
+        INSTRUCTION_REGEX.containsMatchIn(line)
+
 
     companion object : PDFParserConstructor {
         private const val TEXT_TO_SEARCH_FOR = "VOOR VRAGEN OVER VLIEGUREN: FLIGHTCREWSUPPORT@KLM.COM"
@@ -239,11 +256,34 @@ class KlmMonthlyParser(private val lines: List<String>) : PDFParser() {
 
         // sim identifiers are all regexes.
         // The check for a digit after 0 or more whitespaces (at the end) is to filter out instruction.
-        private const val SIM_TQ_MATCH = """VK - Type Kwalificatie sim\s*\d"""
-        private const val SIM_TQ_EXAM_MATCH = """VXN - Type Kwalificatie\s*\d"""
-        private const val SIM_787_RECURRENT_MATCH = """VT8 - 787 RECURRENT\s*\d"""
-        private const val SIM_LOE_MATCH = """VS?A - LOE\s*\d"""
-        private const val SIM_TR_MATCH = """VT\d - Type recurrent \d\s*\d"""
-        private const val SIM_LPC_MATCH = """VC - OPC / LPC\s*\d"""
+        private const val SIM_TQ_MATCH = """VK\s*-\s*Type Kwalificatie sim.*\d"""
+        private const val SIM_TQ_EXAM_MATCH = """VXN\s*-\s*Type Kwalificatie.*\d"""
+        private const val SIM_787_RECURRENT_MATCH = """VT8\s*-\s*787 RECURRENT.*\d"""
+        private const val SIM_LOE_MATCH = """VS?A\s*-\s*LOE.*\d"""
+        private const val SIM_TR_MATCH = """VT\d\s*-\s*Type recurrent\s*(\d).*\d"""
+        private const val SIM_LPC_MATCH = """VC\s*-\s*OPC\s*/\s*LPC.*\d"""
+
+        // A lot of these I have never seen used
+        private val INSTRUCTION_CODES = listOf(
+            "PS1",  // TR1 SO
+            "PS2",  // TR2 SO
+            "PT1",  // TR1
+            "PT2",  // TR2
+            "PTF",  // TR Floating
+            "PK",   // TQ or Theory day or TQ Check
+            "PA",   // Ops Check or TQ check R->L
+            "PP",   // FCL Check SO
+            "PX1",  // Cross seat 1
+            "PX2",  // Cross seat 2
+            "PR1",  // Route Qual 1
+            "PR2",  // Route Qual 2
+            "PXN",  // Examiner TQ
+            "ASP",  // SIM US as instructor
+            "ASO",  // Sim US as observer
+            "ASB",  // Sim US as observed instructor
+            "BIQ",  // Inspected instructor
+            "PQ",   // Unnamed session
+        )
+        private val INSTRUCTION_REGEX = "\\s+(?:${INSTRUCTION_CODES.joinToString("|")})\\s+\\d".toRegex() // One or more whitespaces, any instruction code, followed by one or more whitespaces and then a digit.
     }
 }
