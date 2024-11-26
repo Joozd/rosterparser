@@ -17,3 +17,6 @@ Beta version, mostly meant for internal testing. Can be used though. Should be m
 - 
 ### 0.1.5-beta
 - Fixed critical error in parsing requested flights in KLM Monthly overviews
+- 
+### 0.1.6-beta
+- Improved handling of KLM Simulator duties
