@@ -20,3 +20,6 @@ Beta version, mostly meant for internal testing. Can be used though. Should be m
 - 
 ### 0.1.6-beta
 - Improved handling of KLM Simulator duties
+
+### 0.1.7-beta
+CURRENTLY IN DEV, NOT DEPLOYED YET
