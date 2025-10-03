@@ -26,13 +26,13 @@ abstract class CsvParserSubclassTest: ParserSubclassTest() {
     private fun createParser() = File(this::class.java.classLoader.getResource(testResourceName)!!.toURI())
         .inputStream()
         .use{
-            parserConstructor.createIfAble(readLines(it))
+            parserConstructor.createIfAble(readLines(it)) { }
         }
 
     @Test
     fun testConstructsCorrectly() {
         // Check bad data handling:
-        assertNull(parserConstructor.createIfAble(listOf("Bad Data")), "Parser should return null for bad data")
+        assertNull(parserConstructor.createIfAble(listOf("Bad Data")) { }, "Parser should return null for bad data")
 
         // Check if parser can be made from the data and is of the correct type
         assertNotNull(parser, "Parser should not be null")

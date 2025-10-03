@@ -3,6 +3,7 @@ package nl.joozd.rosterparser.parsers.csv
 import nl.joozd.rosterparser.*
 import nl.joozd.rosterparser.parsers.CSVParser
 import nl.joozd.rosterparser.parsers.factories.CSVParserConstructor
+import nl.joozd.rosterparser.parsers.progress.Progress
 import nl.joozd.rosterparser.services.csv.CSVReader
 import java.time.LocalDate
 import java.time.LocalTime
@@ -15,7 +16,7 @@ import kotlin.time.Duration.Companion.minutes
  * Parses a MCC Pilot Log tab-separated CSV file
  * This is the format I have for my logbook from the 2010's.
  */
-class MccPilotLogParser(private val lines: List<String>) : CSVParser() {
+class MccPilotLogParser(private val lines: List<String>, onProgress: (Progress) -> Unit) : CSVParser(onProgress = onProgress) {
     /**
      * creates a [ParsedRoster] from the data found in the InputStream used to create this RosterParser.
      *
@@ -40,7 +41,8 @@ class MccPilotLogParser(private val lines: List<String>) : CSVParser() {
                 throw ParsingException("Cannot parse line $flightMap", e)
             }
         }
-
+    }.also{
+        onProgress(Progress.FINISHED)
     }
 
     private fun flightMapToSim(flightMap: Map<String, String>): ParsedSimulatorDuty {
@@ -111,9 +113,15 @@ class MccPilotLogParser(private val lines: List<String>) : CSVParser() {
     companion object : CSVParserConstructor {
         private const val TEXT_TO_SEARCH_FOR = "mcc_DATE\tIS_PREVEXP\tAC_ISSIM"
 
-        override fun createIfAble(csvLines: List<String>): MccPilotLogParser? =
+        override fun createIfAble(
+            csvLines: List<String>,
+            onProgress: (Progress) -> Unit
+        ): MccPilotLogParser? =
             if (firstLineWithoutQuotesMatches(csvLines))
-                MccPilotLogParser(csvLines)
+                MccPilotLogParser(csvLines, onProgress = onProgress)
+                    .also{
+                        onProgress(Progress.CREATED)
+                    }
             else null
 
         private fun firstLineWithoutQuotesMatches(lines: List<String>) =

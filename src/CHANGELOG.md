@@ -23,3 +23,5 @@ Beta version, mostly meant for internal testing. Can be used though. Should be m
 
 ### 0.1.7-beta
 CURRENTLY IN DEV, NOT DEPLOYED YET
+- Progress listener added
+- Bumped java version to 21

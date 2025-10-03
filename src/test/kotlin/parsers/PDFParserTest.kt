@@ -2,8 +2,10 @@ package parsers
 
 import nl.joozd.rosterparser.RosterParser
 import nl.joozd.rosterparser.parsers.PDFParser
+import nl.joozd.rosterparser.parsers.progress.Progress
 import java.io.File
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
 class PDFParserTest {
@@ -12,9 +14,14 @@ class PDFParserTest {
 
     @Test
     fun testPdfParserCreation(){
+        var currentProgress: Progress? = null
         val parser = pdfTestFile.inputStream().use{
-            RosterParser.ofInputStream(it, mimeType)
+            RosterParser.ofInputStream(it, mimeType){ progress ->
+                println(progress)
+                currentProgress = progress
+            }
         }
+        assertEquals(Progress.CREATED, currentProgress)
         assertIs<PDFParser>(parser)
     }
 }

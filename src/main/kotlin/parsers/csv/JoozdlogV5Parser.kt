@@ -3,6 +3,7 @@ package nl.joozd.rosterparser.parsers.csv
 import nl.joozd.rosterparser.*
 import nl.joozd.rosterparser.parsers.CSVParser
 import nl.joozd.rosterparser.parsers.factories.CSVParserConstructor
+import nl.joozd.rosterparser.parsers.progress.Progress
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlin.time.Duration.Companion.minutes
@@ -11,7 +12,7 @@ import kotlin.time.Duration.Companion.minutes
  * Parses a Joozdlog V5 CSV file
  * A Joozdlog V5 CSV File is the backup file created by Joozdlog.
  */
-class JoozdlogV5Parser(private val lines: List<String>) : CSVParser() {
+class JoozdlogV5Parser(private val lines: List<String>, onProgress: (Progress) -> Unit) : CSVParser(onProgress = onProgress) {
     /**
      * creates a [ParsedRoster] from the data found in the InputStream used to create this RosterParser.
      *
@@ -38,7 +39,8 @@ class JoozdlogV5Parser(private val lines: List<String>) : CSVParser() {
                 throw ParsingException("Cannot parse line $line", e)
             }
         }
-
+    }.also{
+        onProgress(Progress.FINISHED)
     }
 
     /**
@@ -133,8 +135,12 @@ class JoozdlogV5Parser(private val lines: List<String>) : CSVParser() {
 
 
     companion object : CSVParserConstructor {
-        override fun createIfAble(csvLines: List<String>): JoozdlogV5Parser? =
-            if (canCreateFromLines(csvLines)) JoozdlogV5Parser(csvLines)
+        override fun createIfAble(csvLines: List<String>, onProgress: (Progress) -> Unit): JoozdlogV5Parser? =
+            if (canCreateFromLines(csvLines))
+                JoozdlogV5Parser(csvLines, onProgress = onProgress)
+                    .also{
+                        onProgress(Progress.CREATED)
+                }
             else null
 
         private fun canCreateFromLines(lines: List<String>): Boolean =

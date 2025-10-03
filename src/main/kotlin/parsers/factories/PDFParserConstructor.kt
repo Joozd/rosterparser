@@ -2,6 +2,7 @@ package nl.joozd.rosterparser.parsers.factories
 
 import com.itextpdf.text.pdf.PdfReader
 import nl.joozd.rosterparser.parsers.PDFParser
+import nl.joozd.rosterparser.parsers.progress.Progress
 
 /**
  * Implement this interface with any PDF Parser's companion object,
@@ -25,5 +26,5 @@ interface PDFParserConstructor {
      * @param pdfReader PdfReader object containing the PDF roster to be parsed, if able.
      *  Not recommended to use this for checking if the parser can be created due to performance reasons.
      */
-    fun createIfAble(pdfLines: List<String>, pdfReader: PdfReader): PDFParser?
+    fun createIfAble(pdfLines: List<String>, pdfReader: PdfReader, onProgress: (Progress) -> Unit = {}): PDFParser?
 }

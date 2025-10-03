@@ -1,6 +1,7 @@
 package nl.joozd.rosterparser.parsers.factories
 
 import nl.joozd.rosterparser.parsers.TextParser
+import nl.joozd.rosterparser.parsers.progress.Progress
 
 /**
  * Implement this interface with any Text Parser's companion object,
@@ -10,6 +11,6 @@ interface TextParserConstructor {
     /**
      *  If [text] can be used to create this object, create it. Else, return null.
      */
-    fun createIfAble(text: String): TextParser?
+    fun createIfAble(text: String, onProgress: (Progress) -> Unit = {}): TextParser?
 
 }

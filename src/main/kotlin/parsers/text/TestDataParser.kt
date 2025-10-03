@@ -4,13 +4,14 @@ import nl.joozd.rosterparser.ParsedRoster
 import nl.joozd.rosterparser.ParsingException
 import nl.joozd.rosterparser.parsers.TextParser
 import nl.joozd.rosterparser.parsers.factories.TextParserConstructor
+import nl.joozd.rosterparser.parsers.progress.Progress
 import nl.joozd.rosterparser.testing.RosterParserTestData
 import nl.joozd.rosterparser.testing.buildSampleRoster
 
 /**
  * This parses only the RosterParser TestData data, and returns a sample roster, using [buildSampleRoster]
  */
-class TestDataParser: TextParser() {
+class TestDataParser(onProgress: (Progress) -> Unit): TextParser(onProgress) {
     /**
      * creates a [ParsedRoster] from the data found in the InputStream used to create this RosterParser.
      *
@@ -26,9 +27,9 @@ class TestDataParser: TextParser() {
         /**
          *  If [text] can be used to create this object, create it. Else, return null.
          */
-        override fun createIfAble(text: String): TextParser? =
+        override fun createIfAble(text: String, onProgress: (Progress) -> Unit): TextParser? =
             if (text == RosterParserTestData.dataString)
-                TestDataParser()
+                TestDataParser(onProgress)
             else null
     }
 }

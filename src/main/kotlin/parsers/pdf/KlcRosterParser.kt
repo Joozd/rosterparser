@@ -7,6 +7,7 @@ import nl.joozd.rosterparser.ParsedRoster
 import nl.joozd.rosterparser.ParsingException
 import nl.joozd.rosterparser.parsers.PDFParser
 import nl.joozd.rosterparser.parsers.factories.PDFParserConstructor
+import nl.joozd.rosterparser.parsers.progress.Progress
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -17,7 +18,7 @@ import java.util.*
  * Parse a KLC Monthly overview to flights.
  * Does not support simulator duties at the moment (ignores them)
  */
-class KlcRosterParser(private val lines: List<String>) : PDFParser() {
+class KlcRosterParser(private val lines: List<String>, onProgress: (Progress) -> Unit) : PDFParser(onProgress) {
     private val dateRangeRegEx = """Period: ($DAY_REGEX_STRING) - ($DAY_REGEX_STRING) contract:""".toRegex()
     private val dayRegex = """^(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)(\d\d).*""".toRegex()
     private val flightRegex = (
@@ -50,6 +51,8 @@ class KlcRosterParser(private val lines: List<String>) : PDFParser() {
                 addDuty(makeFlightFromLine(flightLine, date))
             }
         }
+    }.also{
+        onProgress(Progress.FINISHED)
     }
 
 
@@ -101,7 +104,7 @@ class KlcRosterParser(private val lines: List<String>) : PDFParser() {
             dayRegex.find(it)?.groupValues?.get(1)?.toInt()
         }?.let { dayOfMonth ->
             val todayCandidate = period.start.withDayOfMonth(dayOfMonth)
-            return if (todayCandidate in period)
+            if (todayCandidate in period)
                 todayCandidate
             else
                 todayCandidate.plusMonths(1)
@@ -125,7 +128,7 @@ class KlcRosterParser(private val lines: List<String>) : PDFParser() {
                 .let { if (it < tOut) it.plusDays(1) else it } // add a day if past midnight
             val type = aircraftTypes[typeString]
 
-            return ParsedFlight(
+            ParsedFlight(
                 date = date,
                 flightNumber = flightNumber,
                 takeoffAirport = r.groups[KlcMonthlyParser.GroupNames.ORIG]?.value
@@ -153,9 +156,11 @@ class KlcRosterParser(private val lines: List<String>) : PDFParser() {
         private const val LINE_TO_LOOK_AT = 1
         private const val TEXT_TO_SEARCH_FOR = "Individual duty plan for"
 
-        override fun createIfAble(pdfLines: List<String>, pdfReader: PdfReader): KlcRosterParser? =
+        override fun createIfAble(pdfLines: List<String>, pdfReader: PdfReader, onProgress: (Progress) -> Unit): KlcRosterParser? =
             if (LINE_TO_LOOK_AT in pdfLines.indices && pdfLines[LINE_TO_LOOK_AT].startsWith(TEXT_TO_SEARCH_FOR))
-                KlcRosterParser(pdfLines)
+                KlcRosterParser(pdfLines, onProgress = onProgress).also{
+                    onProgress(Progress.CREATED)
+                }
             else null
 
         private const val DAY_REGEX_STRING =

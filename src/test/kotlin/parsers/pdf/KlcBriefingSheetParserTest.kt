@@ -42,18 +42,18 @@ class KlcBriefingSheetParserTest: PdfParserSubclassTest() {
 
     companion object{
         private val correctParsedFlight =
-            ParsedFlight(date = LocalDate.parse("2024-01-25"),
+            ParsedFlight(date = LocalDate.parse("2022-01-25"),
                 flightNumber = "KL1857", takeoffAirport = "AMS",
                 landingAirport = "DUS",
-                departureTime = LocalDateTime.parse("2024-01-25T12:10"),
-                arrivalTime = LocalDateTime.parse("2024-01-25T12:55"),
+                departureTime = LocalDateTime.parse("2022-01-25T12:10"),
+                arrivalTime = LocalDateTime.parse("2022-01-25T12:55"),
                 aircraftRegistration = "PHEZV",
                 pilotInCommand = Person.fromString("Joost Welle"),
                 personsNotPIC = listOf(Person.fromString("Joery Folkers"), Person.fromString("Romario Ter Horst"), Person.fromString("Patri­ van der Wolk")),
                 isPICDuty = true
             )
 
-        private val correctTimeRange = LocalDate.of(2024,1,25)..LocalDate.of(2024, 1, 27)
+        private val correctTimeRange = LocalDate.of(2022,1,25)..LocalDate.of(2022, 1, 27)
 
         val correctAirportFormat = AirportFormat.IATA
     }
