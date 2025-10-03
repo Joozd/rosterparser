@@ -3,6 +3,7 @@ package nl.joozd.rosterparser.parsers.text
 import nl.joozd.rosterparser.*
 import nl.joozd.rosterparser.parsers.TextParser
 import nl.joozd.rosterparser.parsers.factories.TextParserConstructor
+import nl.joozd.rosterparser.parsers.progress.Progress
 import nl.joozd.rosterparser.services.csv.CSVReader
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -18,7 +19,7 @@ import kotlin.time.Duration.Companion.minutes
  * Not sure if they changed the format, but my file is 15 years old and from a verion that no longer exists.
  * This will throw a [ParsingException] if the input file has line breaks in text fields.
  */
-class LogtenProOldParser(private val text: String) : TextParser() {
+class LogtenProOldParser(private val text: String, onProgress: (Progress) -> Unit) : TextParser(onProgress = onProgress) {
     private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
     private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
@@ -57,6 +58,8 @@ class LogtenProOldParser(private val text: String) : TextParser() {
                 addDuty(bf.copy(date = periodStart))
             else addDuty(bf)
         }
+    }.also{
+        onProgress(Progress.FINISHED)
     }
 
     private fun parseDuty(duty: Map<String, String>): ParsedDuty {
@@ -304,10 +307,16 @@ class LogtenProOldParser(private val text: String) : TextParser() {
         /**
          *  If [text] can be used to create this object, create it. Else, return null.
          */
-        override fun createIfAble(text: String): TextParser? =
+        override fun createIfAble(
+            text: String,
+            onProgress: (Progress) -> Unit
+        ): TextParser? =
             text.take(maxOf(0, text.indexOf('\n'))).let { line -> //get all chars until first line break
                 if (USED_KEYS.all { it in (line) })
-                    LogtenProOldParser(text)
+                    LogtenProOldParser(text, onProgress = onProgress)
+                        .also{
+                            onProgress(Progress.CREATED)
+                        }
                 else null
             }
 

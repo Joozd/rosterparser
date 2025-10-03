@@ -7,6 +7,7 @@ import nl.joozd.rosterparser.ParsedRoster
 import nl.joozd.rosterparser.ParsingException
 import nl.joozd.rosterparser.parsers.PDFParser
 import nl.joozd.rosterparser.parsers.factories.PDFParserConstructor
+import nl.joozd.rosterparser.parsers.progress.Progress
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -16,7 +17,7 @@ import java.time.format.DateTimeFormatter
  * Parse a KLC Monthly overview to flights.
  * Does not support simulator duties at the moment (ignores them)
  */
-class KlcMonthlyParser(private val lines: List<String>) : PDFParser() {
+class KlcMonthlyParser(private val lines: List<String>, onProgress: (Progress) -> Unit) : PDFParser(onProgress = onProgress) {
     /**
      * creates a [ParsedRoster] from the data found in the InputStream used to create this RosterParser.
      *
@@ -49,6 +50,8 @@ class KlcMonthlyParser(private val lines: List<String>) : PDFParser() {
             addDuty(flightFromMatchResult(it, period))
         }
 
+    }.also{
+        onProgress(Progress.FINISHED)
     }
 
 
@@ -181,9 +184,11 @@ class KlcMonthlyParser(private val lines: List<String>) : PDFParser() {
          * @param pdfReader PdfReader object containing the PDF roster to be parsed, if able.
          *  Not recommended to use this for checking if the parser can be created due to performance reasons.
          */
-        override fun createIfAble(pdfLines: List<String>, pdfReader: PdfReader): KlcMonthlyParser? =
+        override fun createIfAble(pdfLines: List<String>, pdfReader: PdfReader, onProgress: (Progress) -> Unit): KlcMonthlyParser? =
             if ((pdfLines.firstOrNull() ?: "").startsWith(TEXT_TO_SEARCH_FOR))
-                KlcMonthlyParser(pdfLines)
+                KlcMonthlyParser(pdfLines, onProgress = onProgress).also{
+                    onProgress(Progress.CREATED)
+                }
             else null
 
         const val PERIOD_LINE_IDENTIFIER = "Period: From "

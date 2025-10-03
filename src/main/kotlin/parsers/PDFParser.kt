@@ -2,13 +2,14 @@ package nl.joozd.rosterparser.parsers
 
 import nl.joozd.rosterparser.RosterParser
 import nl.joozd.rosterparser.parsers.factories.PDFParserFactory
+import nl.joozd.rosterparser.parsers.progress.Progress
 import java.io.InputStream
 
 /**
  * PDFParsers must be registered in [nl.joozd.rosterparser.parsers.factories.ParsersRegistry]
  * in order for them to be used
  */
-abstract class PDFParser: RosterParser() {
+abstract class PDFParser(onProgress: (Progress) -> Unit): RosterParser(onProgress = onProgress) {
     companion object{
         /**
          * Create a new CSV Parser with the data in [inputStream]
@@ -18,7 +19,7 @@ abstract class PDFParser: RosterParser() {
          *
          * Contains blocking IO
          */
-        internal fun ofInputStream(inputStream: InputStream): PDFParser? =
-            PDFParserFactory.getPdfParser(inputStream)
+        internal fun ofInputStream(inputStream: InputStream, onProgress: (Progress) -> Unit = {}): PDFParser? =
+            PDFParserFactory.getPdfParser(inputStream, onProgress)
     }
 }

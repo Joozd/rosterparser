@@ -4,6 +4,7 @@ import com.itextpdf.text.pdf.PdfReader
 import nl.joozd.rosterparser.*
 import nl.joozd.rosterparser.parsers.PDFParser
 import nl.joozd.rosterparser.parsers.factories.PDFParserConstructor
+import nl.joozd.rosterparser.parsers.progress.Progress
 import java.time.*
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -11,7 +12,10 @@ import java.util.*
 /**
  * Parses a KLC Briefing Sheet to a ParsedRoster.
  */
-class KlcBriefingSheetParser(private val lines: List<String>) : PDFParser() {
+class KlcBriefingSheetParser(private val lines: List<String>, onProgress: (Progress) -> Unit) : PDFParser(onProgress = onProgress) {
+    private val year: Year by lazy { getYear(lines) }
+
+
     /**
      * creates a [ParsedRoster] from the data found in the InputStream used to create this RosterParser.
      *
@@ -31,6 +35,8 @@ class KlcBriefingSheetParser(private val lines: List<String>) : PDFParser() {
         addNamesToFlights(flightsWithoutCrew, crewLines, personOnRoster).forEach {
             addDuty(it)
         }
+    }.also{
+        onProgress(Progress.FINISHED)
     }
 
     /**
@@ -116,7 +122,17 @@ class KlcBriefingSheetParser(private val lines: List<String>) : PDFParser() {
 
     private fun getDate(dateString: String): LocalDate {
         val dateFormat = DateTimeFormatter.ofPattern("ddMMM", Locale.US)
-        return MonthDay.parse(dateString, dateFormat).atYear(Year.now().value)
+        return MonthDay.parse(dateString, dateFormat).atYear(year.value)
+    }
+
+    private fun getYear(lines: List<String>): Year {
+        val currentYear = Year.now()
+        println("LOOKING FOR YEAR (${yearRegex.pattern}) IN\n${lines.joinToString("\n")}")
+        val yearLine = lines.firstOrNull { it matches yearRegex }
+            ?: return currentYear.also { println("\n\nNot Found :(")}
+        val year = yearRegex.find(yearLine)?.groupValues?.last()?.toInt()
+            ?: return currentYear
+        return Year.of(2000 + year)
     }
 
 
@@ -272,10 +288,16 @@ class KlcBriefingSheetParser(private val lines: List<String>) : PDFParser() {
         private const val TEXT_TO_SEARCH_FOR = "Cockpit Briefing for"
 
 
-        override fun createIfAble(pdfLines: List<String>, pdfReader: PdfReader): KlcBriefingSheetParser? =
+        override fun createIfAble(
+            pdfLines: List<String>,
+            pdfReader: PdfReader,
+            onProgress: (Progress) -> Unit
+        ): KlcBriefingSheetParser? =
             // This might be too ambiguous but works for now.
             if (LINE_TO_LOOK_AT in pdfLines.indices && pdfLines[LINE_TO_LOOK_AT].startsWith(TEXT_TO_SEARCH_FOR))
-                KlcBriefingSheetParser(pdfLines)
+                KlcBriefingSheetParser(pdfLines, onProgress = onProgress).also{
+                    onProgress(Progress.CREATED)
+                }
             else null
 
 
@@ -285,6 +307,10 @@ class KlcBriefingSheetParser(private val lines: List<String>) : PDFParser() {
         private const val START_OF_CREW_INFO = "Crew Info"
         private const val MY_NAME_START = "Cockpit Briefing for "
         private const val MY_NAME_END = " KLC AUTO BRIEFING"
+
+        private const val YEAR_REGEX_STRING =
+            """\d\d[A-Z][a-z]{2}(\d\d)""" // 2 digits (day), Jan/Feb/Mar etc, 2 digits (year)
+        private val yearRegex = ".*printed at $YEAR_REGEX_STRING.*".toRegex()
 
         // Indices in split flight lines
         private const val DATE = 0

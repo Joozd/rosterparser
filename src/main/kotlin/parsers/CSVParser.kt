@@ -2,13 +2,14 @@ package nl.joozd.rosterparser.parsers
 
 import nl.joozd.rosterparser.RosterParser
 import nl.joozd.rosterparser.parsers.factories.CSVParserFactory
+import nl.joozd.rosterparser.parsers.progress.Progress
 import java.io.InputStream
 
 /**
  * CSVParsers must be registered in [nl.joozd.rosterparser.parsers.factories.ParsersRegistry]
  * in order for them to be used
  */
-abstract class CSVParser: RosterParser() {
+abstract class CSVParser(onProgress: (Progress) -> Unit): RosterParser(onProgress) {
     companion object{
         /**
          * Create a new CSV Parser with the data in [inputStream]
@@ -18,7 +19,7 @@ abstract class CSVParser: RosterParser() {
          *
          * Contains blocking IO
          */
-        internal fun ofInputStream(inputStream: InputStream): CSVParser? =
-            CSVParserFactory.getCsvParser(inputStream)
+        internal fun ofInputStream(inputStream: InputStream, onProgress: (Progress) -> Unit = {}): CSVParser? =
+            CSVParserFactory.getCsvParser(inputStream, onProgress)
     }
 }

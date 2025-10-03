@@ -2,12 +2,14 @@
 
 package nl.joozd.rosterparser
 
+import nl.joozd.rosterparser.parsers.progress.Progress
 import java.io.InputStream
 
 /**
- * A Rosterparser can parse a Roster (of overview if after the fact) for a flight Schedule to a ParsedRoster.
+ * A RosterParser can parse a Roster (of overview if after the fact) for a flight Schedule to a ParsedRoster.
+ * @param onProgress a listener for progress updates. This might update quite often (i.e. multiple times per line)
  */
-abstract class RosterParser {
+abstract class RosterParser(protected val onProgress: (Progress) -> Unit = {}) {
     /**
      * creates a [ParsedRoster] from the data found in the InputStream used to create this RosterParser.
      *
@@ -28,8 +30,8 @@ abstract class RosterParser {
          *
          * Contains Blocking IO
          */
-        fun ofInputStream(inputStream: InputStream, mimeType: String): RosterParser =
-            ParserFactory.getParserForMimeType(mimeType, inputStream)
+        fun ofInputStream(inputStream: InputStream, mimeType: String, onProgress: (Progress) -> Unit = {}): RosterParser =
+            ParserFactory.getParserForMimeType(mimeType, inputStream, onProgress)
 
 
         /**
@@ -41,7 +43,7 @@ abstract class RosterParser {
          * @throws[IllegalArgumentException] if unable to create a RosterParser with the provided InputStream/mimetype combination.
          * @throws[ParsingException] if the created parser ran into a problem while parsing the data (bad data or unexpected format variant)
          */
-        fun getRoster(inputStream: InputStream, mimeType: String) =
-            ofInputStream(inputStream, mimeType).getRoster()
+        fun getRoster(inputStream: InputStream, mimeType: String, onProgress: (Progress) -> Unit = {}) =
+            ofInputStream(inputStream, mimeType, onProgress).getRoster()
     }
 }

@@ -4,6 +4,7 @@ import com.itextpdf.text.pdf.PdfReader
 import nl.joozd.rosterparser.*
 import nl.joozd.rosterparser.parsers.PDFParser
 import nl.joozd.rosterparser.parsers.factories.PDFParserConstructor
+import nl.joozd.rosterparser.parsers.progress.Progress
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -16,7 +17,7 @@ import kotlin.time.Duration.Companion.minutes
  * Parses a Klm Monthly Overview to a ParsedRoster.
  * A KLM Monthly Overview contains completed flights.
  */
-class KlmMonthlyParser(private val lines: List<String>) : PDFParser() {
+class KlmMonthlyParser(private val lines: List<String>, onProgress: (Progress) -> Unit) : PDFParser(onProgress = onProgress) {
     private val periodRegex = """Periode: ($DATE) t/m ($DATE)""".toRegex()
     private val flightLineMatcher =
         """^\d{2}\s+$FLIGHT_NUMBER\s+$REGISTRATION\s+$TIME.*""".toRegex() // only to check if line is a flight
@@ -65,6 +66,8 @@ class KlmMonthlyParser(private val lines: List<String>) : PDFParser() {
         rosterPeriod = period
         airportFormat = AirportFormat.IATA
         flightsArePlanned = false
+    }.also{
+        onProgress(Progress.FINISHED)
     }
 
     /**
@@ -239,9 +242,16 @@ class KlmMonthlyParser(private val lines: List<String>) : PDFParser() {
          * @param pdfReader PdfReader object containing the PDF roster to be parsed, if able.
          *  Not recommended to use this for checking if the parser can be created due to performance reasons.
          */
-        override fun createIfAble(pdfLines: List<String>, pdfReader: PdfReader): KlmMonthlyParser? =
+        override fun createIfAble(
+            pdfLines: List<String>,
+            pdfReader: PdfReader,
+            onProgress: (Progress) -> Unit
+        ): KlmMonthlyParser? =
             if (pdfLines.any { TEXT_TO_SEARCH_FOR in it })
-                KlmMonthlyParser(pdfLines)
+                KlmMonthlyParser(pdfLines, onProgress = onProgress)
+                    .also{
+                        onProgress(Progress.CREATED)
+                    }
             else null
 
         private const val DATE = """\d{2}-\d{2}-\d{4}"""
