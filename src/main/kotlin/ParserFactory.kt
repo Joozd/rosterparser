@@ -18,7 +18,7 @@ internal object ParserFactory {
      */
     fun getParserForMimeType(mimeType: String, inputStream: InputStream, onProgress: (Progress) -> Unit): RosterParser =
         when (mimeType) {
-            MimeTypes.CSV -> CSVParser.ofInputStream(inputStream, onProgress)
+            MimeTypes.CSV, MimeTypes.CSV_LONG -> CSVParser.ofInputStream(inputStream, onProgress)
             MimeTypes.PDF -> PDFParser.ofInputStream(inputStream, onProgress)
             MimeTypes.TEXT -> TextParser.ofInputStream(inputStream, onProgress)
             else -> throw IllegalArgumentException("MIME type $mimeType not supported for creating a RosterParser object")

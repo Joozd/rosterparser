@@ -1,15 +1,14 @@
-import java.net.URL
-
-val versionName = "0.1.7-beta"
-val groupID = "nl.joozd.rosterparser"
-
-
+import java.net.URI
 
 plugins {
-    kotlin("jvm") version "2.2.20"
-    id("org.jetbrains.dokka") version "1.9.20"
+    kotlin("jvm") version "2.4.20"
+    id("org.jetbrains.dokka") version "2.2.0"
+    id("org.jetbrains.dokka-javadoc") version "2.2.0"
     id("maven-publish")
 }
+
+val versionName = "0.1.9-beta"
+val groupID = "nl.joozd.rosterparser"
 
 group = groupID
 version = versionName
@@ -19,31 +18,95 @@ repositories {
 }
 
 dependencies {
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0")
 
-    implementation("com.itextpdf:itextg:5.5.10") // iText PDF for PDF parsing. This requires AGPL License. Using EOL version because that works on android.
-    implementation("org.apache.commons:commons-csv:1.14.1") // Apache Commons CSV parsing
-    implementation("com.ibm.icu:icu4j:77.1") // ICU4J, for detecting text encoding
+    // iText PDF parsing. Requires AGPL.
+    // This EOL Android-compatible version is intentionally retained.
+    implementation("com.itextpdf:itextg:5.5.10")
 
-    // implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1-Beta") // Kotlin Coroutines, not used at the moment
+    // Apache Commons CSV parsing.
+    implementation("org.apache.commons:commons-csv:1.14.1")
+
+    // ICU4J, used for text encoding detection.
+    implementation("com.ibm.icu:icu4j:78.3")
+
+    testImplementation(kotlin("test"))
 }
 
-val sourceJar by tasks.registering(Jar::class) {
+kotlin {
+    jvmToolchain(21)
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+
+/**
+ * Dokka configuration.
+ */
+dokka {
+    dokkaPublications.html {
+        moduleName.set("RosterParser")
+        outputDirectory.set(layout.buildDirectory.dir("docs"))
+    }
+
+    dokkaPublications.javadoc {
+        moduleName.set("RosterParser")
+        outputDirectory.set(layout.buildDirectory.dir("javadoc"))
+    }
+
+    dokkaSourceSets.main {
+        includes.from("Module.md")
+
+        reportUndocumented.set(true)
+        jdkVersion.set(21)
+
+        sourceLink {
+            localDirectory.set(file("src/main/kotlin"))
+            remoteUrl.set(
+                URI(
+                    "https://github.com/Joozd/rosterparser/" +
+                            "tree/master/src/main/kotlin"
+                )
+            )
+            remoteLineSuffix.set("#L")
+        }
+    }
+}
+
+/**
+ * Packages the main source files into a sources JAR.
+ */
+val sourceJar = tasks.register<Jar>("sourceJar") {
+    description = "Packages the main source files into a sources JAR."
+    group = "build"
+
     archiveClassifier.set("sources")
-    from(sourceSets["main"].allSource)
+    from(sourceSets.named("main").map { it.allSource })
 }
 
-tasks.register<Jar>("dokkaHtmlJar") {
-    dependsOn(tasks.dokkaHtml)
-    from(tasks.dokkaHtml.flatMap { it.outputDirectory })
+/**
+ * Packages the generated Dokka HTML documentation into a JAR.
+ */
+val dokkaHtmlJar = tasks.register<Jar>("dokkaHtmlJar") {
+    description = "Packages the generated Dokka HTML documentation into a JAR."
+    group = "documentation"
+
+    dependsOn(tasks.named("dokkaGeneratePublicationHtml"))
     archiveClassifier.set("html-docs")
+    from(layout.buildDirectory.dir("docs"))
 }
 
-tasks.register<Jar>("dokkaJavadocJar") {
-    dependsOn(tasks.dokkaJavadoc)
-    from(tasks.dokkaJavadoc.flatMap { it.outputDirectory })
+/**
+ * Packages the generated Dokka Javadoc documentation into a JAR.
+ */
+val dokkaJavadocJar = tasks.register<Jar>("dokkaJavadocJar") {
+    description = "Packages the generated Dokka Javadoc documentation into a JAR."
+    group = "documentation"
+
+    dependsOn(tasks.named("dokkaGeneratePublicationJavadoc"))
     archiveClassifier.set("javadoc")
+    from(layout.buildDirectory.dir("javadoc"))
 }
 
 publishing {
@@ -55,19 +118,18 @@ publishing {
             artifactId = "rosterparser"
             version = versionName
 
-            artifact(sourceJar.get()) // Attach the source JAR
-
-            // Attach the Dokka HTML documentation JAR
-            artifact(tasks.named("dokkaHtmlJar").get())
-
-            // Attach the Dokka Javadoc JAR
-            artifact(tasks.named("dokkaJavadocJar").get())
-
+            artifact(sourceJar)
+            artifact(dokkaHtmlJar)
+            artifact(dokkaJavadocJar)
 
             pom {
+                name.set("RosterParser")
+                description.set("Parser for airline roster data.")
+                url.set("https://github.com/Joozd/rosterparser")
+
                 licenses {
                     license {
-                        name.set("The Affero General Public License, Version 3")
+                        name.set("GNU Affero General Public License, Version 3")
                         url.set("https://www.gnu.org/licenses/agpl-3.0.html")
                         distribution.set("repo")
                     }
@@ -75,48 +137,25 @@ publishing {
             }
         }
     }
+
     repositories {
         maven {
-            url = uri("https://joozd.nl/nexus/repository/maven-releases/")
+            name = "reposilite"
+
+            url = uri(
+                if (versionName.endsWith("-SNAPSHOT")) {
+                    "https://repo.joozd.nl/snapshots"
+                } else {
+                    "https://repo.joozd.nl/releases"
+                }
+            )
+
             credentials {
-                username = (findProperty("nexusUsername") ?: System.getenv("NEXUS_USERNAME") ?: "").toString()
-                password = (findProperty("nexusPassword") ?: System.getenv("NEXUS_PASSWORD") ?: "").toString()
+                username = findProperty("repoUsername")?.toString()
+                    ?: error("Missing Gradle property: repoUsername")
+                password = findProperty("repoPassword")?.toString()
+                    ?: error("Missing Gradle property: repoPassword")
             }
         }
     }
-}
-
-tasks.dokkaHtml {
-    outputDirectory.set(layout.buildDirectory.dir("docs"))
-
-    dokkaSourceSets {
-        named("main") {
-            // Set module and package options as needed
-            moduleName.set("RosterParser")
-            includes.from("Module.md")
-//            includeNonPublic.set(false)
-//            skipEmptyPackages.set(true)
-            reportUndocumented.set(true) // Warn if something is not documented
-            jdkVersion.set(11) // Target JDK version
-            sourceLink {
-                localDirectory.set(file("src/main/kotlin"))
-                remoteUrl.set(
-                    URL(
-                        "https://github.com/Joozd/rosterparser/" +
-                                "tree/master/src/main/kotlin"
-                    )
-                )
-                remoteLineSuffix.set("#L")
-            }
-        }
-    }
-}
-
-
-
-tasks.test {
-    useJUnitPlatform()
-}
-kotlin {
-    jvmToolchain(21)
 }

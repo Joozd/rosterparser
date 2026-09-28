@@ -24,3 +24,10 @@ Beta version, mostly meant for internal testing. Can be used though. Should be m
 ### 0.1.7-beta
 - Progress listener added. Might be wonky.
 - Bumped java version to 21
+
+### 0.1.8-beta
+- Added support for mimetype "text/comma-separated-values" for CSV
+
+### 0.1.9-beta
+- Updated dependencies
+- new deployment target (reposilite)
